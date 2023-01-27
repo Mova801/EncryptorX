@@ -13,7 +13,7 @@ __pycache__/
 *.cy
 
 # App
-log/
+logs/
 
 # Distribution / packaging
 .Python

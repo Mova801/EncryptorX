@@ -1,4 +1,3 @@
-import tkinter
 import customtkinter as ct
 
 from controller import controller

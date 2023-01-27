@@ -4,8 +4,10 @@ from pathlib import Path
 from gui import gui_layout
 from gui.gui_constants import GuiConstants
 from gui import gui_exceptions
+from logger.logger import basic_init_log, basic_log
 
 
+@basic_init_log
 class Gui(ct.CTk):
     """
     Graphical User Interface class used to display the graphical interface
@@ -45,15 +47,18 @@ class Gui(ct.CTk):
         self.id_counter += 1
         return ret_id
 
+    @basic_log
     def build(self) -> None:
         """Builds the application layout."""
         gui_layout.build_layout(self)
 
+    @basic_log
     def run(self) -> None:
         """Runs the application instance."""
         if self:
             self.mainloop()
 
+    @basic_log
     def close(self) -> None:
         """Destroy the window when closed."""
         self.destroy()

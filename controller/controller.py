@@ -1,87 +1,52 @@
-import importlib.util
-import threading
-import tkinter as tk
-from typing import Callable
-import customtkinter as ct
-from types import ModuleType
-from pathlib import Path
-
+from logger.logger import basic_log, basic_init_log
+from model.model import Model
+from view.abc_view import AbstractView
+from controller.controller_threading import as_thread
 from resources import constants
-from logger.logger import basic_log
-from gui.gui_constants import Colors
 
 
-@basic_log
-def start_thread(target_function: Callable, *args) -> None:
-    """
-    Starts a new daemon thread.
-    :param target_function: thread target function.
-    :param args: args to the target_function.
-    :return: None.
-    """
-    th: threading = threading.Thread(target=target_function, daemon=True, args=args)
-    th.start()
-
-
-def activate_button_when_text_is_present(
-        textbox: ct.CTkTextbox, btn_to_activate: ct.CTkButton, check_time: int) -> None:
-    """
-    Every :param check_time: checks if :param textbox: has text in it, if so activate :param btn_to_activate:
-    :param textbox: textbox to check.
-    :param btn_to_activate: button to activate.
-    :param check_time: time to wait between checks.
-    :return: None.
-    """
-    btn_to_activate.after(check_time, activate_button_when_text_is_present, textbox, btn_to_activate, check_time)
-    if textbox.get(0.0, tk.END) != "\n":
-        btn_to_activate.configure(state=tk.NORMAL)
-        btn_to_activate.configure(fg_color=Colors.CYAN.hex)
-    else:
-        btn_to_activate.configure(state=tk.DISABLED)
-        btn_to_activate.configure(fg_color=Colors.LIGHT_CYAN.hex)
-
-
-@basic_log
-def elaborate_button_callback(textbox: ct.CTkTextbox) -> None:
-    """
-    Get the text of the textbox and elaborates it.
-    :param textbox: textbox.
-    :return: None.
-    """
+@basic_init_log
+class Controller:
+    def __init__(self, model: Model, view: AbstractView) -> None:
+        self.view: AbstractView = view
+        self.model: Model = model
 
     @basic_log
-    def import_module(module_name: str) -> ModuleType:
-        """
-        Imports dynamically the given module.
-        :param module_name: module to import.
-        :return: imported module.
-        """
-        path: str = str(Path("resources").joinpath(f"{module_name}.py"))
-        spec = importlib.util.spec_from_file_location(module_name, path)
-        imported_module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(imported_module)
-        return imported_module
+    def run(self) -> None:
+        """Run the application instance."""
+        self.view.build(self)
+        self.view.run()
 
-    @basic_log
-    def textbox_set_text(text: str) -> None:
+    def close(self) -> None:
+        """Stop the application."""
+        self.view.stop()
+
+    def handle_id_request(self, element) -> None:
         """
-        Set the text of the textbox to the given :param text:
-        :param text: text to insert.
+        Handle id request from the view.
+        :param element: element which needs a new id.
         :return: None.
         """
-        textbox.delete(0.0, tk.END)
-        textbox.insert(0.0, text)
+        new_id: int = self.model.id()
+        self.view.set_id(element, new_id)
 
-    module: ModuleType = ...
-    try:
-        module = import_module(constants.MODULE_TO_IMPORT)
-    except ImportError:
-        pass
-
-    try:
-        output_text: str = module.main(textbox.get(1.0, "end"))
-    except NotImplementedError:
-        output_text = "ERROR"
-
-    if isinstance(output_text, str):
-        textbox_set_text(output_text)
+    @basic_log
+    @as_thread
+    def handle_elaborate_click(self, text: str) -> None:
+        """
+        Elaborate :param text:
+        :param text: passed text.
+        :return: None.
+        """
+        output_text: str = ""
+        try:
+            module = self.model.import_module(constants.MODULE_TO_IMPORT)
+            output_text: str = module.main(text)
+        except ImportError:
+            output_text = "ERROR"
+        except NotImplementedError:
+            output_text = f"Unfilled elaboration function. " \
+                          f"Define the main function body of the module to import: {constants.MODULE_TO_IMPORT}",
+        finally:
+            if isinstance(output_text, str):
+                self.view.update_output_textbox(output_text)

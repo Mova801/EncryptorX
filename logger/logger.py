@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import functools
 import logging
 import time
@@ -49,7 +51,7 @@ def create_filestream_handler(level: int, filename: str | PathLike[str]) -> logg
     :param filename: filename used to log the file stream messages.
     :return: FileStreamHandler.
     """
-    f_handler = logging.FileHandler(filename)
+    f_handler = logging.FileHandler(filename, mode='w')
     f_handler.setLevel(level)
     f_handler.set_name(f"{__name__}file_handler")
     return f_handler
@@ -70,7 +72,7 @@ def format_filestream_handler(handler: logging.FileHandler, formatting: str | No
     return handler
 
 
-def setup(logger_name: str | None = None, level: int | None = logging.WARNING, stream: bool | None = False,
+def setup(logger_name: str | None = None, level: int | None = logging.INFO, stream: bool | None = False,
           filestream: bool | None = False, formatting: str | None = "", filename: Path | None = "") -> logging.Logger:
     """
     Return a Logger object which can handle both Stream and FileStream logging.

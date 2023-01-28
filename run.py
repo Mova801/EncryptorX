@@ -1,21 +1,18 @@
 """
-Created by Marco Vita (aka Mova801) on 23/01/2023
+Simple module provided by Mova801.
+Run an MVC based application.
 Graphical User Interface provided by http://github.com/Mova801
 """
-from gui import gui_class
-from gui import gui_exceptions
-from gui.gui_constants import GuiConstants
+from view import view
+from model.model import Model
+from controller.controller import Controller
 
 
 def main() -> None:
-    """Creates and runs a new window."""
-    try:
-        app = gui_class.Gui(title="MovaApp_v0.0.1", win_size=(800, 600), icon=GuiConstants.icon)
-    except gui_exceptions.GuiInvalidWindowSizeError:
-        exit(-1)
-    else:
-        app.build()
-        app.run()
+    """Create and run a new application."""
+    gui = view.Gui(title="MovaApp_v0.0.1", win_size=(800, 600))
+    app = Controller(model=Model(), view=gui)
+    app.run()
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 # SimpleGUIApplication
 
-![python](https://img.shields.io/static/v1?label=python&message=3.10&color=green&style=for-the-badge) ![version](https://img.shields.io/static/v1?label=version&message=0.0.1-alpha&color=green&style=for-the-badge) ![author](https://img.shields.io/static/v1?label=author&message=Mova801&color=blue&style=for-the-badge)
+![python](https://img.shields.io/static/v1?label=python&message=3.10&color=green&style=for-the-badge) ![version](https://img.shields.io/static/v1?label=version&message=0.0.1-alpha&color=green&style=for-the-badge) ![author](https://img.shields.io/static/v1?label=author&message=Mova801&color=blue&style=for-the-badge) ![author](https://img.shields.io/static/v1?label=license&message=MIT&color=important&style=for-the-badge)
 
 
 - [SimpleGUIApplication](#simpleguiapplication)

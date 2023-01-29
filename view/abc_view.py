@@ -12,11 +12,11 @@ class AbstractView(ABC):
         ...
 
     @abstractmethod
-    def update_output_textbox(self) -> None:
+    def update_output_textbox(self, text: str) -> None:
         ...
 
     @abstractmethod
-    def set_id(self, element, new_id: str) -> None:
+    def set_id(self, new_id: int) -> None:
         ...
 
     @abstractmethod

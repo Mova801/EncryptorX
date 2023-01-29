@@ -1,6 +1,7 @@
 from logger.logger import basic_log, basic_init_log
 from model.model import Model
 from view.abc_view import AbstractView
+from controller import controller_constants
 from controller.controller_threading import as_thread
 from resources import constants
 
@@ -27,8 +28,18 @@ class Controller:
         :param element: element which needs a new id.
         :return: None.
         """
-        new_id: int = self.model.id()
-        self.view.set_id(element, new_id)
+        new_id: int = self.model.generate_id()
+        self.view.set_id(new_id)
+
+    def handle_open_link_request(self, type: str) -> None:
+        """
+        Handle a request to open a link.
+        :param type: defines the type of the request. Different requests open different links.
+        :return: None.
+        """
+        match type:
+            case controller_constants.RequestType.BUG_REPORT:
+                self.model.open_link(controller_constants.Link.github_app_issues)
 
     @basic_log
     @as_thread
@@ -45,8 +56,8 @@ class Controller:
         except ImportError:
             output_text = "ERROR"
         except NotImplementedError:
-            output_text = f"Unfilled elaboration function. " \
-                          f"Define the main function body of the module to import: {constants.MODULE_TO_IMPORT}",
+            output_text = f"Unfilled elaboration function." \
+                          f" Define the main function body of the module to import: {constants.MODULE_TO_IMPORT}"
         finally:
             if isinstance(output_text, str):
                 self.view.update_output_textbox(output_text)

@@ -1,4 +1,5 @@
 import importlib.util
+import webbrowser
 from types import ModuleType
 from pathlib import Path
 
@@ -13,7 +14,7 @@ class Model:
         self.__id_counter: int = 0
 
     @basic_log
-    def id(self) -> int:
+    def generate_id(self) -> int:
         """
         Return a simple unique id for app ui elements.
         :return: ret_id
@@ -21,6 +22,15 @@ class Model:
         ret_id: int = self.__id_counter
         self.__id_counter += 1
         return ret_id
+
+    @basic_log
+    def open_link(self, link: str) -> None:
+        """
+        Open a link.
+        :param link: link to open.
+        :return: None.
+        """
+        webbrowser.open(link)
 
     @basic_log
     def import_module(self, module_name: str) -> ModuleType:

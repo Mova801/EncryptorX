@@ -1,3 +1,4 @@
+import PIL.Image
 import customtkinter as ct
 from pathlib import Path
 import tkinter as tk
@@ -6,6 +7,7 @@ from logger.logger import basic_init_log, basic_log
 from view.abc_view import AbstractView
 from view import view_exceptions
 from view.view_constants import GuiConstants, ButtonConstants, LabelConstants, TextBoxConstants, FontConstants, Colors
+from controller import controller_constants
 
 
 @basic_init_log
@@ -22,23 +24,25 @@ class Gui(ct.CTk, AbstractView):
 
         # elements
         self.__input_button = None
+        self.__bug_button = None
         self.__input_label = None
-        self.output_label = None
+        self.__output_label = None
         self.__input_textbox = None
         self.__output_textbox = None
+        self.__waiting_id: list[ct.CTkBaseClass] = []
 
         # window
         self.title(title)
         try:
             self.geometry(f"{win_size[0]}x{win_size[1]}")
         except ValueError:
-            raise gui_exceptions.GuiInvalidWindowSizeError(win_size)
+            raise view_exceptions.GuiInvalidWindowSizeError(value=win_size)
 
         self.resizable(False, False)
         self.protocol("WM_DELETE_WINDOW", self.stop)  # call self.close() when window gets closed
 
         # FIXME: not supported in recent lib update, must wait
-        self.iconbitmap(Path.cwd().joinpath(GuiConstants.icon_path).joinpath(GuiConstants.icon))
+        self.iconbitmap(Path.cwd().joinpath(GuiConstants.icon_path).joinpath(GuiConstants.logo))
 
         # setting window theme and appearance
         ct.set_appearance_mode(GuiConstants.appearance_mode)
@@ -66,14 +70,14 @@ class Gui(ct.CTk, AbstractView):
         btn_to_activate.after(check_time, self.__activate_button_when_text_is_present, btn_to_activate, check_time)
         if self.__input_textbox.get(0.0, tk.END) != "\n":
             btn_to_activate.configure(state=tk.NORMAL)
-            btn_to_activate.configure(fg_color=Colors.CYAN.hex)
+            btn_to_activate.configure(fg_color=ButtonConstants.fg_color)
         else:
             btn_to_activate.configure(state=tk.DISABLED)
-            btn_to_activate.configure(fg_color=Colors.LIGHT_CYAN.hex)
+            btn_to_activate.configure(fg_color=ButtonConstants.disabled_fg_color)
 
-    def set_id(self, element: ct.CTkTextbox, new_id: str) -> None:
+    def set_id(self, new_id: str) -> None:
         """Set the received id as an element-id."""
-        element.grid(row=new_id)
+        self.__waiting_id.pop(0).grid(row=new_id)
 
     @basic_log
     def run(self) -> None:
@@ -94,7 +98,8 @@ class Gui(ct.CTk, AbstractView):
         """
         input_label_text: str = "Input"
         output_label_text: str = "Output"
-        button_text: str = "COMPUTE"
+        input_button_text: str = "COMPUTE"
+        bug_button_text: str = "Report Bug"
 
         # set view grid
         self.grid_columnconfigure(0, weight=1)  # 1 column
@@ -102,14 +107,17 @@ class Gui(ct.CTk, AbstractView):
 
         # set self grid
         self.grid_columnconfigure(0, weight=1)  # 1 column
-        [self.grid_rowconfigure(i, weight=0) for i in range(6)]  # 5 rows (id: 0 -> 4)
+        [self.grid_rowconfigure(i, weight=0) for i in range(8)]  # 5 rows (id: 0 -> 4)
 
         # ============ title label for input ============
         self.__input_label = ct.CTkLabel(
             master=self,
             text=input_label_text,
+            corner_radius=LabelConstants.corner_rad,
+            fg_color=LabelConstants.fg_color,
             font=(FontConstants.font, FontConstants.size_T)
         )
+        self.__waiting_id.append(self.__input_label)
         self.__input_label.grid(
             row=controller.handle_id_request(self.__input_label), column=0,
             padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
@@ -118,8 +126,10 @@ class Gui(ct.CTk, AbstractView):
         # ============ text for input ============
         self.__input_textbox = ct.CTkTextbox(
             master=self,
+            height=TextBoxConstants.height,
             font=(FontConstants.font, FontConstants.size_M),
         )
+        self.__waiting_id.append(self.__input_textbox)
         self.__input_textbox.grid(
             row=controller.handle_id_request(self.__input_textbox), column=0,
             padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
@@ -129,38 +139,68 @@ class Gui(ct.CTk, AbstractView):
         # ============ elaborate button ============
         self.__input_button = ct.CTkButton(
             master=self,
-            text=button_text,
+            text=input_button_text,
+            height=ButtonConstants.height,
+            width=ButtonConstants.width,
+            text_color=ButtonConstants.text_color,
+            fg_color=ButtonConstants.fg_color,
+            hover_color=ButtonConstants.hover_color,
+            text_color_disabled=ButtonConstants.disabled_text_color,
             font=(FontConstants.font, FontConstants.size_L, 'bold'),
-            # state=tkinter.DISABLED,
             command=lambda: controller.handle_elaborate_click(self.__output_textbox.get(0.0, tk.END))
         )
-
+        self.__waiting_id.append(self.__input_button)
         self.__input_button.grid(
             row=controller.handle_id_request(self.__input_button), column=0,
             padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
-            sticky=ButtonConstants.sticky)
+            sticky='sn')
 
         # ============ title label for output ============
-        self.output_label = ct.CTkLabel(
+        self.__output_label = ct.CTkLabel(
             master=self,
             text=output_label_text,
+            corner_radius=LabelConstants.corner_rad,
+            fg_color=LabelConstants.fg_color,
             font=(FontConstants.font, FontConstants.size_T)
         )
-        self.output_label.grid(
-            row=controller.handle_id_request(self.output_label), column=0,
+        self.__waiting_id.append(self.__output_label)
+        self.__output_label.grid(
+            row=controller.handle_id_request(self.__output_label), column=0,
             padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
             sticky=LabelConstants.sticky)
 
         # ============ text for output ============ì
         self.__output_textbox = ct.CTkTextbox(
             master=self,
+            height=TextBoxConstants.height,
             font=(FontConstants.font, FontConstants.size_M),
         )
+        self.__waiting_id.append(self.__output_textbox)
         self.__output_textbox.grid(
             row=controller.handle_id_request(self.__output_textbox), column=0,
             padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
             sticky=TextBoxConstants.sticky)
         self.__output_textbox.insert("0.0", TextBoxConstants.default_output_text)
+
+        image = PIL.Image.open(Path.cwd().joinpath(GuiConstants.icon_path).joinpath(GuiConstants.bug_icon))
+
+        # ============ bug_icon button ============
+        self.__bug_button = ct.CTkButton(
+            master=self,
+            text=bug_button_text,
+            height=ButtonConstants.height,
+            text_color=ButtonConstants.text_color,
+            fg_color=ButtonConstants.fg_color,
+            hover_color=ButtonConstants.hover_color,
+            font=(FontConstants.font, FontConstants.size_M),
+            # state=tkinter.DISABLED,
+            image=ct.CTkImage(dark_image=image, size=GuiConstants.icon_size),
+            command=lambda: controller.handle_open_link_request(controller_constants.RequestType.BUG_REPORT)
+        )
+        self.__waiting_id.append(self.__bug_button)
+        self.__bug_button.grid(
+            row=controller.handle_id_request(self.__bug_button), column=0,
+            padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady)
 
         # UPDATE BUTTON STATE
         self.__activate_button_when_text_is_present(self.__input_button, self.update_time_ms)

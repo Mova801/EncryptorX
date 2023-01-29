@@ -2,20 +2,10 @@
 
 ![python](https://img.shields.io/static/v1?label=python&message=3.10&color=green&style=for-the-badge) ![version](https://img.shields.io/static/v1?label=version&message=0.0.1-alpha&color=green&style=for-the-badge) ![author](https://img.shields.io/static/v1?label=author&message=Mova801&color=blue&style=for-the-badge) ![author](https://img.shields.io/static/v1?label=license&message=MIT&color=important&style=for-the-badge)
 
-
-- [SimpleGUIApplication](#simpleguiapplication)
-  - [Requirements](#requirements)
-    - [`installazione locale`](#installazione-locale)
-    - [`virtual environment`](#virtual-environment)
-  - [Application folder structure](#application-folder-structure)
-  - [Application `resources` folder](#application-resources-folder)
-  - [General Application info](#general-application-info)
-
-
 ## Requirements
 
-Per permettere il corretto funzionamento dell'app è necessario installare alcune librerie di python.
-Qui sono riportati due modi.
+Per permettere il corretto funzionamento dell'app è necessario installare alcune librerie di python. Qui sono riportati
+due modi.
 
 ---
 
@@ -33,7 +23,8 @@ Una volta conclusa l'operazione le librerie saranno installate sul computer e sa
 
 ### `virtual environment`
 
-Aprire il terminale, spostarsi nella cartella in cui è presente l'app e installare la libreria `virtualenv` con il comando:
+Aprire il terminale, spostarsi nella cartella in cui è presente l'app e installare la libreria `virtualenv` con il
+comando:
 
 ```shell
 C:\...\appfolder> pip install virtualenv
@@ -47,7 +38,8 @@ C:\...\appfolder> nome_ambiente_virtuale\Scripts\activate
 (nome_ambiente_virtuale) C:\..\appfolder> pip install -r requirements.txt 
 ```
 
-Quando nel terminale vediamo scritto `(nome_ambiente_virtuale)` accanto al percorso in cui si troviamo significa che l'ambiente è attivo.
+Quando nel terminale vediamo scritto `(nome_ambiente_virtuale)` accanto al percorso in cui si troviamo significa che
+l'ambiente è attivo.
 
 Adesso l'ambiente virtuale è pronto e l'app può essere avviata.
 
@@ -65,21 +57,27 @@ Per deattivare l'ambiente virtuale inserire nel terminale il comando:
 
 ## Application folder structure
 
-- `controller`: package contenente logica da eseguire quando l'utente interagisce con l'app.
-- `gui`: package contenente l'interfaccia grafica dell'app e le sue impostazioni.
-- [`resource`](#resources): package contenente alcune parti della logica dell'app.
+- `controller`: package contenente la parte di app che gestisce `model` e `view`.
+- `model`: package contenente logica da eseguire quando l'utente interagisce con l'app.
+- `view`: package contenente l'interfaccia grafica dell'app e le sue impostazioni.
+- [`resource`](#resources): package contenente alcune parti della logica dell'app; personalizzabili dall'utente.
 - `util`: package contenente librerie di supporto.
-- `log`: cartella contenente informazioni sull'ultimo utilizzo dell'app.
+- `logger`: package contenente la logica di logging dell'app.
+- `logs`: cartella contenente i log riguardo all'utilizzo dell'app (azioni ed errori).
 - `run.py`: modulo python per eseguire l'applicazione.
 - `EXTRA`: app info.
+
+__Nota:__ _in caso di errori e malfunzionamenti avvisare lo sviluppatore._
 
 ---
 
 ## Application `resources` folder
 
-SimpleGUIApplication al click del pulsante `COMPUTE` esegue qualsiasi cosa sia presente nella funzione `main` del modulo `elaborate.py`.
+SimpleGUIApplication al click del pulsante `COMPUTE` esegue qualsiasi cosa sia presente nella funzione `main` del
+modulo `elaborate.py`.
 
-Il risultato della funzione __DEVE__ necessariamente essere una stringa, altrimenti il programma non considera il risultato corretto. Se il risultato è corretto viene mostrato nell'app.
+Il risultato della funzione __DEVE__ necessariamente essere una stringa, altrimenti il programma non considera il
+risultato corretto. Se il risultato è corretto viene mostrato nell'app.
 
 Il modulo da importare è specificato nella variabile `MODULE_TO_IMPORT` contenuta nel modulo `constants`.
 
@@ -87,7 +85,8 @@ Il modulo da importare è specificato nella variabile `MODULE_TO_IMPORT` contenu
 MODULE_TO_IMPORT: str = "nome_modulo_da_importare"
 ```
 
-_La modifica del modulo da importare è sconsigliata; si suggerisce di modificare il modulo di default scrivendo nella funzione `main`._
+_La modifica del modulo da importare è sconsigliata; si suggerisce di modificare il modulo di default scrivendo nella
+funzione `main`._
 
 ---
 
@@ -97,6 +96,7 @@ L'app appena avviata dovrebbe apparire così
 
 <img alt="just started app" src="EXTRA\app_layout.png" title="started app" width="600"/>
 
-Non ci sono ancora molti controlli sugli input. In ogni caso, finché l'utente non inserisce del testo nel textbox di input il pulsante `COMPUTE` rimane disattivato.
+Non ci sono ancora molti controlli sugli input. In ogni caso, finché l'utente non inserisce del testo nel textbox di
+input il pulsante `COMPUTE` rimane disattivato.
 
 <img alt="just started app" src="EXTRA\app_layout2.png" title="started app" width="600"/>

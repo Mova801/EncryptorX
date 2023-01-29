@@ -28,7 +28,7 @@ class GuiConstants:
     inner_padx: int = 30
     inner_pady: int = 10
     icon_size: tuple[int, int] = (25, 25)
-    icon_path: str = "EXTRA\images"
+    icon_path: str = "assets\images"
     logo: str = "redbunnyproject.ico"
     bug_icon: str = "bug_icon.png"
     appearance_mode: str = "dark"
@@ -53,6 +53,7 @@ class ButtonConstants:
 class LabelConstants:
     """Class containing default values for application Label elements."""
     inner_pad: int = 5
+    text_color: str = Colors.WHITE.hex
     fg_color: str = Colors.CYAN.hex
     corner_rad: int = 4
     sticky: str = "nsew"

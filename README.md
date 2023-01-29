@@ -1,6 +1,6 @@
 # SimpleGUIApplication
 
-![python](https://img.shields.io/static/v1?label=python&message=3.10&color=green&style=for-the-badge) ![version](https://img.shields.io/static/v1?label=version&message=0.0.1-alpha&color=green&style=for-the-badge) ![author](https://img.shields.io/static/v1?label=author&message=Mova801&color=blue&style=for-the-badge) ![author](https://img.shields.io/static/v1?label=license&message=MIT&color=important&style=for-the-badge)
+![python](https://img.shields.io/static/v1?label=python&message=3.11&color=green&style=for-the-badge&logo=python) ![version](https://img.shields.io/static/v1?label=version&message=0.0.2-alpha&color=green&style=for-the-badge) ![author](https://img.shields.io/static/v1?label=author&message=Mova801&color=blue&style=for-the-badge) ![author](https://img.shields.io/static/v1?label=license&message=MIT&color=success&style=for-the-badge)
 
 ## Requirements
 
@@ -60,7 +60,7 @@ Per deattivare l'ambiente virtuale inserire nel terminale il comando:
 - `controller`: package contenente la parte di app che gestisce `model` e `view`.
 - `model`: package contenente logica da eseguire quando l'utente interagisce con l'app.
 - `view`: package contenente l'interfaccia grafica dell'app e le sue impostazioni.
-- [`resource`](#resources): package contenente alcune parti della logica dell'app; personalizzabili dall'utente.
+- `resource`: package contenente alcune parti della logica dell'app; personalizzabili dall'utente.
 - `util`: package contenente librerie di supporto.
 - `logger`: package contenente la logica di logging dell'app.
 - `logs`: cartella contenente i log riguardo all'utilizzo dell'app (azioni ed errori).
@@ -94,9 +94,9 @@ funzione `main`._
 
 L'app appena avviata dovrebbe apparire così
 
-<img alt="just started app" src="EXTRA\app_layout.png" title="started app" width="600"/>
+<img alt="just started app" src="extra\app_layout_0.png" title="started app" width="600"/>
 
 Non ci sono ancora molti controlli sugli input. In ogni caso, finché l'utente non inserisce del testo nel textbox di
 input il pulsante `COMPUTE` rimane disattivato.
 
-<img alt="just started app" src="EXTRA\app_layout2.png" title="started app" width="600"/>
+<img alt="just started app" src="extra\app_layout_1.png" title="started app" width="600"/>

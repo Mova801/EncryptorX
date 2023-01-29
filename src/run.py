@@ -10,7 +10,7 @@ from controller.controller import Controller
 
 def main() -> None:
     """Create and run a new application."""
-    gui = Gui(title="MovaApp_v0.0.1", win_size=(800, 600))
+    gui = Gui(title="MovaApp_v0.0.2-alpha", win_size=(800, 600))
     app = Controller(model=Model(), view=gui)
     app.start()
 

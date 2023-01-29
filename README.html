@@ -263,26 +263,11 @@ pre[data-line] .line-highlight[data-end]:after {
       <div class="mume markdown-preview  ">
       <h1 class="mume-header" id="-simpleguiapplication-">SimpleGUIApplication</h1>
 
-<p>by <a href="http://github.com/Mova801">Mova801</a></p>
-<ul>
-<li><a href="#simpleguiapplication">SimpleGUIApplication</a>
-<ul>
-<li><a href="#requirements">Requirements</a>
-<ul>
-<li><a href="#installazione-locale"><code>installazione locale</code></a></li>
-<li><a href="#virtual-environment"><code>virtual environment</code></a></li>
-</ul>
-</li>
-<li><a href="#application-folder-structure">Application folder structure</a></li>
-<li><a href="#application-resources-folder">Application <code>resources</code> folder</a></li>
-<li><a href="#general-application-info">General Application info</a></li>
-</ul>
-</li>
-</ul>
+<p><img src="https://img.shields.io/static/v1?label=python&amp;message=3.11&amp;color=green&amp;style=for-the-badge&amp;logo=python" alt="python"> <img src="https://img.shields.io/static/v1?label=version&amp;message=0.0.2-alpha&amp;color=green&amp;style=for-the-badge" alt="version"> <img src="https://img.shields.io/static/v1?label=author&amp;message=Mova801&amp;color=blue&amp;style=for-the-badge" alt="author"> <img src="https://img.shields.io/static/v1?label=license&amp;message=MIT&amp;color=success&amp;style=for-the-badge" alt="author"></p>
 <h2 class="mume-header" id="-requirements-">Requirements</h2>
 
-<p>Per permettere il corretto funzionamento dell&apos;app &#xE8; necessario installare alcune librerie di python.<br>
-Qui sono riportati due modi.</p>
+<p>Per permettere il corretto funzionamento dell&apos;app &#xE8; necessario installare alcune librerie di python. Qui sono riportati<br>
+due modi.</p>
 <hr>
 <h3 class="mume-header" id="-installazione-locale"><code>installazione locale</code></h3>
 
@@ -292,13 +277,15 @@ Qui sono riportati due modi.</p>
 <hr>
 <h3 class="mume-header" id="-virtual-environment"><code>virtual environment</code></h3>
 
-<p>Aprire il terminale, spostarsi nella cartella in cui &#xE8; presente l&apos;app e installare la libreria <code>virtualenv</code> con il comando:</p>
+<p>Aprire il terminale, spostarsi nella cartella in cui &#xE8; presente l&apos;app e installare la libreria <code>virtualenv</code> con il<br>
+comando:</p>
 <pre data-role="codeBlock" data-info="shell" class="language-shell">C:<span class="token punctuation">\</span><span class="token punctuation">..</span>.<span class="token punctuation">\</span>appfolder<span class="token operator">&gt;</span> pip <span class="token function">install</span> virtualenv
 </pre><p>Una volta conclusa l&apos;operazione inserire la seguente sequenza di comandi:</p>
 <pre data-role="codeBlock" data-info="shell" class="language-shell">C:<span class="token punctuation">\</span><span class="token punctuation">..</span>.<span class="token punctuation">\</span>appfolder<span class="token operator">&gt;</span> virtualenv nome_ambiente_virtuale
 C:<span class="token punctuation">\</span><span class="token punctuation">..</span>.<span class="token punctuation">\</span>appfolder<span class="token operator">&gt;</span> nome_ambiente_virtuale<span class="token punctuation">\</span>Scripts<span class="token punctuation">\</span>activate
 <span class="token punctuation">(</span>nome_ambiente_virtuale<span class="token punctuation">)</span> C:<span class="token punctuation">\</span><span class="token punctuation">..</span><span class="token punctuation">\</span>appfolder<span class="token operator">&gt;</span> pip <span class="token function">install</span> -r requirements.txt 
-</pre><p>Quando nel terminale vediamo scritto <code>(nome_ambiente_virtuale)</code> accanto al percorso in cui si troviamo significa che l&apos;ambiente &#xE8; attivo.</p>
+</pre><p>Quando nel terminale vediamo scritto <code>(nome_ambiente_virtuale)</code> accanto al percorso in cui si troviamo significa che<br>
+l&apos;ambiente &#xE8; attivo.</p>
 <p>Adesso l&apos;ambiente virtuale &#xE8; pronto e l&apos;app pu&#xF2; essere avviata.</p>
 <pre data-role="codeBlock" data-info="shell" class="language-shell"><span class="token punctuation">(</span>nome_ambiente_virtuale<span class="token punctuation">)</span> C:<span class="token punctuation">\</span><span class="token punctuation">..</span><span class="token punctuation">\</span>appfolder<span class="token operator">&gt;</span> run.py
 </pre><p>Per deattivare l&apos;ambiente virtuale inserire nel terminale il comando:</p>
@@ -307,29 +294,36 @@ C:<span class="token punctuation">\</span><span class="token punctuation">..</sp
 <h2 class="mume-header" id="-application-folder-structure-">Application folder structure</h2>
 
 <ul>
-<li><code>controller</code>: package contenente logica da eseguire quando l&apos;utente interagisce con l&apos;app.</li>
-<li><code>gui</code>: package contenente l&apos;interfaccia grafica dell&apos;app e le sue impostazioni.</li>
-<li><a href="#resources"><code>resource</code></a>: package contenente alcune parti della logica dell&apos;app.</li>
+<li><code>controller</code>: package contenente la parte di app che gestisce <code>model</code> e <code>view</code>.</li>
+<li><code>model</code>: package contenente logica da eseguire quando l&apos;utente interagisce con l&apos;app.</li>
+<li><code>view</code>: package contenente l&apos;interfaccia grafica dell&apos;app e le sue impostazioni.</li>
+<li><code>resource</code>: package contenente alcune parti della logica dell&apos;app; personalizzabili dall&apos;utente.</li>
 <li><code>util</code>: package contenente librerie di supporto.</li>
-<li><code>log</code>: cartella contenente informazioni sull&apos;ultimo utilizzo dell&apos;app.</li>
+<li><code>logger</code>: package contenente la logica di logging dell&apos;app.</li>
+<li><code>logs</code>: cartella contenente i log riguardo all&apos;utilizzo dell&apos;app (azioni ed errori).</li>
 <li><code>run.py</code>: modulo python per eseguire l&apos;applicazione.</li>
 <li><code>EXTRA</code>: app info.</li>
 </ul>
+<p><strong>Nota:</strong> <em>in caso di errori e malfunzionamenti avvisare lo sviluppatore.</em></p>
 <hr>
 <h2 class="mume-header" id="-application-resources-folder-">Application <code>resources</code> folder</h2>
 
-<p>SimpleGUIApplication al click del pulsante <code>COMPUTE</code> esegue qualsiasi cosa sia presente nella funzione <code>main</code> del modulo <code>elaborate.py</code>.</p>
-<p>Il risultato della funzione <strong>DEVE</strong> necessariamente essere una stringa, altrimenti il programma non considera il risultato corretto. Se il risultato &#xE8; corretto viene mostrato nell&apos;app.</p>
+<p>SimpleGUIApplication al click del pulsante <code>COMPUTE</code> esegue qualsiasi cosa sia presente nella funzione <code>main</code> del<br>
+modulo <code>elaborate.py</code>.</p>
+<p>Il risultato della funzione <strong>DEVE</strong> necessariamente essere una stringa, altrimenti il programma non considera il<br>
+risultato corretto. Se il risultato &#xE8; corretto viene mostrato nell&apos;app.</p>
 <p>Il modulo da importare &#xE8; specificato nella variabile <code>MODULE_TO_IMPORT</code> contenuta nel modulo <code>constants</code>.</p>
 <pre data-role="codeBlock" data-info="python" class="language-python">MODULE_TO_IMPORT<span class="token punctuation">:</span> <span class="token builtin">str</span> <span class="token operator">=</span> <span class="token string">&quot;nome_modulo_da_importare&quot;</span>
-</pre><p><em>La modifica del modulo da importare &#xE8; sconsigliata; si suggerisce di modificare il modulo di default scrivendo nella funzione <code>main</code>.</em></p>
+</pre><p><em>La modifica del modulo da importare &#xE8; sconsigliata; si suggerisce di modificare il modulo di default scrivendo nella<br>
+funzione <code>main</code>.</em></p>
 <hr>
 <h2 class="mume-header" id="-general-application-info-">General Application info</h2>
 
 <p>L&apos;app appena avviata dovrebbe apparire cos&#xEC;</p>
-<img alt="just started app" src="EXTRA\app_layout.png" title="started app" width="600">
-<p>Non ci sono ancora molti controlli sugli input. In ogni caso, finch&#xE9; l&apos;utente non inserisce del testo nel textbox di input il pulsante <code>COMPUTE</code> rimane disattivato.</p>
-<img alt="just started app" src="EXTRA\app_layout2.png" title="started app" width="600">
+<img alt="just started app" src="extra\app_layout_0.png" title="started app" width="600">
+<p>Non ci sono ancora molti controlli sugli input. In ogni caso, finch&#xE9; l&apos;utente non inserisce del testo nel textbox di<br>
+input il pulsante <code>COMPUTE</code> rimane disattivato.</p>
+<img alt="just started app" src="extra\app_layout_1.png" title="started app" width="600">
 
       </div>
       

@@ -114,6 +114,7 @@ class Gui(ct.CTk, AbstractView):
             master=self,
             text=input_label_text,
             corner_radius=LabelConstants.corner_rad,
+            text_color=LabelConstants.text_color,
             fg_color=LabelConstants.fg_color,
             font=(FontConstants.font, FontConstants.size_T)
         )
@@ -160,6 +161,7 @@ class Gui(ct.CTk, AbstractView):
             master=self,
             text=output_label_text,
             corner_radius=LabelConstants.corner_rad,
+            text_color=LabelConstants.text_color,
             fg_color=LabelConstants.fg_color,
             font=(FontConstants.font, FontConstants.size_T)
         )

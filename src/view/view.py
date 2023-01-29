@@ -6,7 +6,7 @@ import tkinter as tk
 from logger.logger import basic_init_log, basic_log
 from view.abc_view import AbstractView
 from view import view_exceptions
-from view.view_constants import GuiConstants, ButtonConstants, LabelConstants, TextBoxConstants, FontConstants, Colors
+from view.view_constants import GuiConstants, ButtonConstants, LabelConstants, TextBoxConstants, FontConstants
 from controller import controller_constants
 
 

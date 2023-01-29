@@ -13,7 +13,7 @@ class Controller:
         self.model: Model = model
 
     @basic_log
-    def run(self) -> None:
+    def start(self) -> None:
         """Run the application instance."""
         self.view.build(self)
         self.view.run()

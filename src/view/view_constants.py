@@ -28,7 +28,7 @@ class GuiConstants:
     inner_padx: int = 30
     inner_pady: int = 10
     icon_size: tuple[int, int] = (25, 25)
-    icon_path: str = "assets\images"
+    icon_path: str = "assets/images"
     logo: str = "redbunnyproject.ico"
     bug_icon: str = "bug_icon.png"
     appearance_mode: str = "dark"

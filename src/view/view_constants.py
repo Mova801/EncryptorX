@@ -73,6 +73,6 @@ class TextBoxConstants:
 class FontConstants:
     """Class containing default values for application Font elements."""
     font: str = "Roboto Medium"
-    size_M: int = 14
+    size_M: int = 13
     size_L: int = 18
     size_T: int = 32

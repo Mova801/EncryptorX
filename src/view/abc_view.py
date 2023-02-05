@@ -12,13 +12,5 @@ class AbstractView(ABC):
         ...
 
     @abstractmethod
-    def update_output_textbox(self, text: str) -> None:
-        ...
-
-    @abstractmethod
-    def set_id(self, new_id: int) -> None:
-        ...
-
-    @abstractmethod
     def stop(self) -> None:
         ...

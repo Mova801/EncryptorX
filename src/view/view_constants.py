@@ -29,8 +29,7 @@ class GuiConstants:
     inner_pady: int = 10
     icon_size: tuple[int, int] = (25, 25)
     icon_path: str = "assets/images"
-    logo: str = "logo2.ico"
-    logo_icon: str = "logo2.png"
+    logo: str = "ex_logo2.ico"
     bug_icon: str = "bug_icon.png"
     appearance_mode: str = "dark"
     color_theme: str = "blue"

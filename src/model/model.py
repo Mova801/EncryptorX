@@ -3,7 +3,7 @@ import webbrowser
 from types import ModuleType
 from pathlib import Path
 
-from logger.logger import basic_log, basic_init_log
+from src.logger.logger import basic_log, basic_init_log
 
 
 @basic_init_log

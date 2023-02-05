@@ -3,11 +3,11 @@ import customtkinter as ct
 from pathlib import Path
 import tkinter as tk
 
-from logger.logger import basic_init_log, basic_log
-from view.abc_view import AbstractView
-from view import view_exceptions
-from view.view_constants import GuiConstants, ButtonConstants, LabelConstants, TextBoxConstants, FontConstants
-from controller import controller_constants
+from src.logger.logger import basic_init_log, basic_log
+from src.view.abc_view import AbstractView
+from src.view import view_exceptions
+from src.view.view_constants import GuiConstants, ButtonConstants, LabelConstants, TextBoxConstants, FontConstants
+from src.controller import controller_constants
 
 
 @basic_init_log
@@ -29,7 +29,8 @@ class Gui(ct.CTk, AbstractView):
         self.__output_label = None
         self.__input_textbox = None
         self.__output_textbox = None
-        self.__waiting_id: list[ct.CTkBaseClass] = []
+
+        self.__id_counter: int = 0
 
         # window
         self.title(title)
@@ -49,6 +50,24 @@ class Gui(ct.CTk, AbstractView):
         ct.set_default_color_theme(GuiConstants.color_theme)
 
         self.update_time_ms: int = 100
+
+    def __generate_id(self) -> int:
+        """
+        Generate a row id for an element.
+        :return: a new id.
+        """
+        new_id: int = self.__id_counter
+        self.__id_counter += 1
+        return new_id
+
+    def __set_id(self, element: ct.CTkBaseClass) -> None:
+        """
+        Set the received id as a row id for an element.
+        :param element: element that needs a row id.
+        :return: None.
+        """
+        new_id: int = self.__generate_id()
+        element.grid(row=new_id)
 
     @basic_log
     def update_output_textbox(self, text: str) -> None:
@@ -74,10 +93,6 @@ class Gui(ct.CTk, AbstractView):
         else:
             btn_to_activate.configure(state=tk.DISABLED)
             btn_to_activate.configure(fg_color=ButtonConstants.disabled_fg_color)
-
-    def set_id(self, new_id: str) -> None:
-        """Set the received id as an element-id."""
-        self.__waiting_id.pop(0).grid(row=new_id)
 
     @basic_log
     def run(self) -> None:
@@ -118,9 +133,8 @@ class Gui(ct.CTk, AbstractView):
             fg_color=LabelConstants.fg_color,
             font=(FontConstants.font, FontConstants.size_T)
         )
-        self.__waiting_id.append(self.__input_label)
         self.__input_label.grid(
-            row=controller.handle_id_request(self.__input_label), column=0,
+            row=self.__set_id(self.__input_label), column=0,
             padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
             sticky=LabelConstants.sticky)
 
@@ -130,9 +144,8 @@ class Gui(ct.CTk, AbstractView):
             height=TextBoxConstants.height,
             font=(FontConstants.font, FontConstants.size_M),
         )
-        self.__waiting_id.append(self.__input_textbox)
         self.__input_textbox.grid(
-            row=controller.handle_id_request(self.__input_textbox), column=0,
+            row=self.__set_id(self.__input_textbox), column=0,
             padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
             sticky=TextBoxConstants.sticky)
         # self.input_textbox.insert("0.0", TextBoxConstants.default_input_text)
@@ -150,9 +163,8 @@ class Gui(ct.CTk, AbstractView):
             font=(FontConstants.font, FontConstants.size_L, 'bold'),
             command=lambda: controller.handle_elaborate_click(self.__output_textbox.get(0.0, tk.END))
         )
-        self.__waiting_id.append(self.__input_button)
         self.__input_button.grid(
-            row=controller.handle_id_request(self.__input_button), column=0,
+            row=self.__set_id(self.__input_button), column=0,
             padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
             sticky='sn')
 
@@ -165,9 +177,8 @@ class Gui(ct.CTk, AbstractView):
             fg_color=LabelConstants.fg_color,
             font=(FontConstants.font, FontConstants.size_T)
         )
-        self.__waiting_id.append(self.__output_label)
         self.__output_label.grid(
-            row=controller.handle_id_request(self.__output_label), column=0,
+            row=self.__set_id(self.__output_label), column=0,
             padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
             sticky=LabelConstants.sticky)
 
@@ -177,9 +188,8 @@ class Gui(ct.CTk, AbstractView):
             height=TextBoxConstants.height,
             font=(FontConstants.font, FontConstants.size_M),
         )
-        self.__waiting_id.append(self.__output_textbox)
         self.__output_textbox.grid(
-            row=controller.handle_id_request(self.__output_textbox), column=0,
+            row=self.__set_id(self.__output_textbox), column=0,
             padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
             sticky=TextBoxConstants.sticky)
         self.__output_textbox.insert("0.0", TextBoxConstants.default_output_text)
@@ -195,13 +205,11 @@ class Gui(ct.CTk, AbstractView):
             fg_color=ButtonConstants.fg_color,
             hover_color=ButtonConstants.hover_color,
             font=(FontConstants.font, FontConstants.size_M),
-            # state=tkinter.DISABLED,
             image=ct.CTkImage(dark_image=image, size=GuiConstants.icon_size),
             command=lambda: controller.handle_open_link_request(controller_constants.RequestType.BUG_REPORT)
         )
-        self.__waiting_id.append(self.__bug_button)
         self.__bug_button.grid(
-            row=controller.handle_id_request(self.__bug_button), column=0,
+            row=self.__set_id(self.__bug_button), column=0,
             padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady)
 
         # UPDATE BUTTON STATE

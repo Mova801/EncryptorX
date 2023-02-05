@@ -1,9 +1,9 @@
-from logger.logger import basic_log, basic_init_log
-from model.model import Model
-from view.abc_view import AbstractView
-from controller import controller_constants
-from controller.controller_threading import as_thread
-from resources import constants
+from src.logger.logger import basic_log, basic_init_log
+from src.model.model import Model
+from src.view.abc_view import AbstractView
+from src.controller import controller_constants
+from src.controller.controller_threading import as_thread
+from src.resources import constants
 
 
 @basic_init_log
@@ -22,24 +22,15 @@ class Controller:
         """Stop the application."""
         self.view.stop()
 
-    def handle_id_request(self, element) -> None:
-        """
-        Handle id request from the view.
-        :param element: element which needs a new id.
-        :return: None.
-        """
-        new_id: int = self.model.generate_id()
-        self.view.set_id(new_id)
-
-    def handle_open_link_request(self, type: str) -> None:
+    def handle_open_link_request(self, request_type: str) -> None:
         """
         Handle a request to open a link.
-        :param type: defines the type of the request. Different requests open different links.
+        :param request_type: defines the type of the request. Different requests open different links.
         :return: None.
         """
-        match type:
+        match request_type:
             case controller_constants.RequestType.BUG_REPORT:
-                self.model.open_link(controller_constants.Link.github_app_issues)
+                self.model.hyperlink(controller_constants.Link.github_app_issues)
 
     @basic_log
     @as_thread

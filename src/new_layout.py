@@ -93,7 +93,12 @@ def count(n: int) -> None:
 
 def process(parent: str) -> None:
     win_id: int = _show_new_encryption(parent)
-    count(1000000)
+
+    output_slot = dpg.get_item_children(parent, 1)
+    output_slot.reverse()
+    dpg.reorder_items(parent, 1, new_order=output_slot)
+
+    count(109999)
     dpg.delete_item(f"output_loading{win_id}")
     _display_data(win_id)
 
@@ -103,8 +108,9 @@ def _clear_encryption_list(parent: str) -> None:
     dpg.delete_item(parent, children_only=True)
     encryption_number = 0
 
+    # window content
 
-# window content
+
 with dpg.window(label="EncryptorX", tag="primary_window"):
     dpg.bind_font(default_font)
 
@@ -174,7 +180,6 @@ while dpg.is_dearpygui_running():
         dpg.enable_item("process_btn")
     else:
         dpg.disable_item("process_btn")
-
     dpg.render_dearpygui_frame()
 # stop
 dpg.destroy_context()

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from util import color
+from src.util import color
 
 
 @dataclass
@@ -29,7 +29,8 @@ class GuiConstants:
     inner_pady: int = 10
     icon_size: tuple[int, int] = (25, 25)
     icon_path: str = "assets/images"
-    logo: str = "redbunnyproject.ico"
+    logo: str = "logo2.ico"
+    logo_icon: str = "logo2.png"
     bug_icon: str = "bug_icon.png"
     appearance_mode: str = "dark"
     color_theme: str = "blue"
@@ -74,5 +75,5 @@ class FontConstants:
     """Class containing default values for application Font elements."""
     font: str = "Roboto Medium"
     size_M: int = 13
-    size_L: int = 18
+    size_L: int = 22
     size_T: int = 32

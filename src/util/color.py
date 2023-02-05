@@ -81,7 +81,7 @@ class Color:
         self.__value = ''.join(hex_value).upper()
 
     @property
-    def rbg(self) -> tuple3int:
+    def rgb(self) -> tuple3int:
         """RGB color value."""
         # red, green, blue values in hexadecimal
         segmentation_len: int = max(1, len(self.__value) // 3)

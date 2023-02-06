@@ -12,6 +12,9 @@ __pycache__/
 # Cython
 *.cy
 
+# EncryptorX
+*.encx
+
 # App
 logs/
 

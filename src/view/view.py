@@ -24,8 +24,11 @@ class DPGGUI(AbstractView):
         - run the window
     """
 
-    def __init__(self, title: str, win_size: tuple[int, int]) -> None:
-        # dearpygui setup
+    def __init__(self, win_size: tuple[int, int], title: str | None = "") -> None:
+        if not title:
+            title = AppConstants.app_name
+
+            # dearpygui setup
         dpg.create_context()
         dpg.create_viewport(title=title, width=win_size[0], height=win_size[1])
         dpg.set_viewport_resizable(AppConstants.resizable)
@@ -147,8 +150,8 @@ class DPGGUI(AbstractView):
         data_to_save: str = f"""# {AppConstants.app_name}{AppConstants.version}
 
 date: {time.strftime("%Y-%m-%d %H:%M:%S")}        
-key: {new_data}
-data: {new_key}
+key: {new_key}
+data: {new_data}
 
 ========================================================================================
 """
@@ -165,13 +168,20 @@ data: {new_key}
         Open a file dialog and then send a request to save a file at the path selected by the user.
 
         """
-        with dpg.file_dialog(label="File Dialog", width=550, height=400,
-                             show=False, callback=lambda _, output: controller.handle_save_file_request(
-                    file_name=output['file_name'], current_path=output['current_path'], data=data, mode=mode
-                ),
-                             tag="filedialog"):
-            dpg.add_file_extension(".x{.x}")  # color=(255, 0, 255, 255))
-        dpg.show_item("filedialog")
+        # TODO: fix file dialog
+        # ========================================= FILE DIALOG =========================================
+        with dpg.file_dialog(label="File Dialog",
+                             width=dpg.get_viewport_width() // 1.2,
+                             height=dpg.get_viewport_height() // 1.5,
+                             show=True, tag="filedialog", modal=True,
+                             callback=lambda _, output: controller.handle_store_data_request(
+                                 file_name=output['file_name'], current_path=output['current_path'], data=data,
+                                 mode=mode)):
+            dpg.add_file_extension(
+                AppConstants.generated_file_extension + "{" + f".{AppConstants.generated_file_extension}" + "}"
+            )  # color=(255, 0, 255, 255))
+
+        dpg.delete_item("filedialog")
 
     @basic_log
     def run(self) -> None:
@@ -193,6 +203,7 @@ data: {new_key}
         :param controller: controller that handles the data user interactions.
         :return: None.
         """
+        # ========================================= PRYMARY WINDOW =========================================
         with dpg.window(tag="primary_window"):
             # ========================================= Spacing =========================================
             dpg.add_spacer(height=5)

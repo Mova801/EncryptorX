@@ -1,6 +1,4 @@
 from __future__ import annotations
-
-from pathlib import Path
 from time import sleep
 
 from src.controller import controller_constants
@@ -8,7 +6,6 @@ from src.controller.controller_threading import as_thread
 from src.logger.logger import basic_log, basic_init_log
 from src.model.model import Model
 from src.view.abc_view import AbstractView
-from src.view.view_constants import AppConstants
 
 
 @basic_init_log
@@ -39,19 +36,22 @@ class Controller:
                 self.model.hyperlink(controller_constants.Link.github_app_issues)
 
     @basic_log
-    def handle_save_file_request(self, file_name: str, current_path: str, data: str, mode: str | None = 'w') -> None:
-        if not file_name.endswith(''):
-            file_name += AppConstants.generated_file_extension
-        file_path = Path(current_path)
-        if file_path.is_dir():
-            with open(file_path.joinpath(file_name), mode) as f:
-                f.write(data)
+    def handle_store_data_request(self, file_name: str, current_path: str, data: str, mode: str | None = 'w') -> None:
+        """
+        Handle a request to save data into a file.
+        :param file_name: file name.
+        :param current_path: selected path (where to save the file).
+        :param data: data to store.
+        :param mode: file mode (write | append |...).
+        :return: None.
+        """
+        self.model.store_data(file_name, current_path, data, mode)
 
     @basic_log
     # @as_thread
     def handle_encrypt_request(self, data: str, key: str) -> tuple[str, str]:
         """
-        Encrypt data with key.
+        Handle a request to encrypt data with key.
         :param data: data to encrypt.
         :param key: key used to encrypt data.
         :return: encrypted data and key.

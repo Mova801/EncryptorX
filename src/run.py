@@ -10,7 +10,7 @@ from controller.controller import Controller
 
 def main() -> None:
     """Create and run a new application."""
-    gui = DPGGUI(title='EncryptorX-v0.0.2-alpha', win_size=(900, 547))
+    gui = DPGGUI(win_size=(900, 547))
     app = Controller(model=Model(), view=gui)
     app.start()
 

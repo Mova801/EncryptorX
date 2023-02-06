@@ -3,9 +3,9 @@ Simple module provided by Mova801.
 Run an MVC based application.
 Graphical User Interface provided by http://github.com/Mova801
 """
-from view.view import DPGGUI
-from model.model import Model
 from controller.controller import Controller
+from model.model import Model
+from view.view import DPGGUI
 
 
 def main() -> None:

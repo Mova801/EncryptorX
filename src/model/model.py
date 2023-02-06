@@ -1,3 +1,6 @@
+"""
+Module containing the application logic.
+"""
 from __future__ import annotations
 
 import webbrowser

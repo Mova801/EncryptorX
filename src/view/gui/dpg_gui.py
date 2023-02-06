@@ -1,9 +1,12 @@
-from __future__ import annotations
+"""
+Module containing the DPGGUI a gui using dearpygui.
+"""
 
-import time
-from typing import Callable, Any
+from __future__ import annotations
 import dearpygui.dearpygui as dpg
 import functools
+import time
+from typing import Callable, Any
 
 from src.controller import controller_constants
 from src.logger.logger import basic_init_log, basic_log
@@ -13,6 +16,27 @@ from src.view.view_constants import FontConstants
 from src.view.view_constants import AppConstants
 from src.view.view_constants import ImageConstants
 from src.view.result_element import ResultElement
+
+
+def _prepare_data_to_elaborate(controller, *args) -> Any:
+    """
+    Receive data to elaborate and return the processed data.
+    :param controller: controller used to access the functions.
+    :param args: data to elaborate
+    :return: processed data.
+    """
+    return controller.handle_encrypt_request(*args)
+
+
+def _prepare_message(data0: Any, data1: Any) -> str:
+    return f"""# {AppConstants.app_name}{AppConstants.version}
+
+date: {time.strftime("%Y-%m-%d %H:%M:%S")}        
+key: {data0}
+data: {data1}
+
+========================================================================================
+"""
 
 
 @basic_init_log
@@ -129,13 +153,23 @@ class DPGGUI(AbstractView):
     @__processing  # type: ignore
     @basic_log
     def __clear_results(self, parent: str) -> None:
+        """
+        Clear the parent item (removes any child).
+        :param parent: target item.
+        :return: None.
+        """
         dpg.delete_item(parent, children_only=True)
         self.__results_counter = 0
 
     @__processing  # type: ignore
     @basic_log
     def __prepare_result(self, controller, parent: str) -> None:
-
+        """
+        Prepare a new result to show data.
+        :param controller: controller used to access functions.
+        :param parent: target item.
+        :return: None.
+        """
         result: ResultElement = self.__add_result(parent)
 
         # put the new Result at the top of the list (shown first)
@@ -145,17 +179,9 @@ class DPGGUI(AbstractView):
 
         data = dpg.get_value("input_textbox_value")
         key = dpg.get_value("input_key_value")
-        controller.handle_encrypt_request(data, key)
-        new_data, new_key = data, key
+        new_data, new_key = _prepare_data_to_elaborate(controller, data, key)
+        data_to_save: str = _prepare_message(new_data, new_key)
 
-        data_to_save: str = f"""# {AppConstants.app_name}{AppConstants.version}
-
-date: {time.strftime("%Y-%m-%d %H:%M:%S")}        
-key: {new_key}
-data: {new_data}
-
-========================================================================================
-"""
         result.set_content(
             self.__fonts['medium'], ('key: ', new_key), ('data:', new_data),
             ('Save', lambda: self.__prepare_save_request(controller, data_to_save, 'a')),  # type: ignore
@@ -167,6 +193,10 @@ data: {new_data}
     def __prepare_save_request(self, controller, data, mode: str | None = 'w') -> None:
         """
         Open a file dialog and then send a request to save a file at the path selected by the user.
+        :param controller: controller used to access functions.
+        :param data: data to store.
+        :param mode: file mode.
+        :return: None.
         """
         if not self.__fd_generated:
             self.__fd_generated = True
@@ -268,4 +298,5 @@ data: {new_data}
                     'v' + AppConstants.version, color=Colors.GOLD.rgb,
                     indent=dpg.get_viewport_width() // 1.15)  # type: ignore
 
+            # set primary window
             dpg.set_primary_window('primary_window', True)

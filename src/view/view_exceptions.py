@@ -7,7 +7,7 @@ class GuiException(Exception):
         self.msg = msg
         self.value = value
 
-    def __str__(self) -> None:
+    def __str__(self) -> str:
         return f"{self.msg}:{self.value}"
 
 

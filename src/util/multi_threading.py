@@ -1,3 +1,6 @@
+"""
+Module implementing multi-threading features.
+"""
 import threading
 from typing import Callable, Any
 import functools

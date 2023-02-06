@@ -1,2 +1,5 @@
-from src.view.dpg_gui import DPGGUI
-from src.view.ct_gui import CTGui
+"""
+Module containing any available gui for the application.
+"""
+from src.view.gui.ct_gui import CTGUI
+from src.view.gui.dpg_gui import DPGGUI

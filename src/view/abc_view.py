@@ -1,3 +1,7 @@
+"""
+Module containing an abstract class for view classes.
+"""
+
 from abc import ABC, abstractmethod
 
 

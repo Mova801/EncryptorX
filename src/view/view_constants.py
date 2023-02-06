@@ -1,3 +1,6 @@
+"""
+Module containing application layout constants.
+"""
 from dataclasses import dataclass
 from pathlib import Path
 

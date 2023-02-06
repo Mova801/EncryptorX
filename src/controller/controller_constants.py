@@ -1,3 +1,6 @@
+"""
+Module containing controller and controller-communication constants.
+"""
 from enum import StrEnum
 from dataclasses import dataclass
 

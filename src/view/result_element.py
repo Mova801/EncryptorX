@@ -1,3 +1,8 @@
+"""
+Module containing a layout item 'ResultElement' (use dearpygui).
+"""
+from typing import Callable, Any
+
 import dearpygui.dearpygui as dpg
 from src.view.view_constants import ResultConstants
 import time
@@ -22,8 +27,8 @@ class ResultElement:
         return self.__id
 
     def set_content(
-            self, font: dpg.font, text0: tuple[str, str], text1: tuple[str, str], btn_0: tuple[str, str],
-            btn_1: tuple[str, str, str]
+            self, font: dpg.font, text0: tuple[str, str], text1: tuple[str, str], btn_0: tuple[str, Callable[..., Any]],
+            btn_1: tuple[str, Callable[..., Any], str]
     ) -> None:
         """
         Set the content of the Result.

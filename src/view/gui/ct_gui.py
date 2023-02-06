@@ -1,3 +1,6 @@
+"""
+Module containing the CTGUI a gui using dearpygui.
+"""
 import PIL.Image
 import customtkinter as ct
 from pathlib import Path
@@ -11,7 +14,7 @@ from src.controller import controller_constants
 
 
 @basic_init_log
-class CTGui(ct.CTk, AbstractView):
+class CTGUI(ct.CTk, AbstractView):
     """
     Graphical User Interface class used to display the graphical interface
     In order to use a new window you must ensure to:

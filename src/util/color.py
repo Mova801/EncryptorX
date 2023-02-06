@@ -1,3 +1,7 @@
+"""
+Module containing a simple Color implementation.
+"""
+
 import re
 import textwrap
 
@@ -66,7 +70,7 @@ class Color:
         """Initializes the color from a rgb value."""
         # checks if the values are valid
         colors: tuple3int = red, green, blue
-        valid_rgb_values: tuple3int = tuple(
+        valid_rgb_values: tuple3int = tuple(  # type:ignore
             color for i, color in enumerate(colors) if self.__min_rgb_value <= color <= self.__max_rgb_value
         )
 
@@ -97,7 +101,7 @@ class Color:
         missing_colors_num: int = self.__rgb_colors_num - len(hex_rgb_values)
         [hex_rgb_values.append("0") for _ in range(missing_colors_num)]
 
-        return tuple(int(value, 16) for value in hex_rgb_values)
+        return tuple(int(value, 16) for value in hex_rgb_values)  # type: ignore
 
     @property
     def hex(self) -> str:

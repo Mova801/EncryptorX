@@ -1,3 +1,6 @@
+"""
+Module containing the controller module exceptions.
+"""
 from typing import Any
 
 
@@ -9,7 +12,7 @@ class ControllerException(Exception):
         self.msg = msg
         self.value = value
 
-    def __str__(self) -> None:
+    def __str__(self) -> str:
         return f"{self.msg}: {self.value}"
 
 

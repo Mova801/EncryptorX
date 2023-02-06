@@ -2,9 +2,9 @@ from __future__ import annotations
 from time import sleep
 
 from src.controller import controller_constants
-from src.controller.controller_threading import as_thread
 from src.logger.logger import basic_log, basic_init_log
 from src.model.model import Model
+from src.util.multi_threading import as_thread
 from src.view.abc_view import AbstractView
 
 
@@ -56,4 +56,6 @@ class Controller:
         :param key: key used to encrypt data.
         :return: encrypted data and key.
         """
-        sleep(1.5)
+        time: float = len(data + key) / 10
+        sleep(time)
+        return str(time), str(time)

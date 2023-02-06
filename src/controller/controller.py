@@ -1,9 +1,14 @@
+from __future__ import annotations
+
+from pathlib import Path
+from time import sleep
+
+from src.controller import controller_constants
+from src.controller.controller_threading import as_thread
 from src.logger.logger import basic_log, basic_init_log
 from src.model.model import Model
 from src.view.abc_view import AbstractView
-from src.controller import controller_constants
-from src.controller.controller_threading import as_thread
-from src.resources import constants
+from src.view.view_constants import AppConstants
 
 
 @basic_init_log
@@ -22,7 +27,8 @@ class Controller:
         """Stop the application."""
         self.view.stop()
 
-    def handle_open_link_request(self, request_type: str) -> None:
+    @basic_log
+    def handle_hyperlink_request(self, request_type: str) -> None:
         """
         Handle a request to open a link.
         :param request_type: defines the type of the request. Different requests open different links.
@@ -33,22 +39,21 @@ class Controller:
                 self.model.hyperlink(controller_constants.Link.github_app_issues)
 
     @basic_log
-    @as_thread
-    def handle_elaborate_click(self, text: str) -> None:
+    def handle_save_file_request(self, file_name: str, current_path: str, data: str, mode: str | None = 'w') -> None:
+        if not file_name.endswith(''):
+            file_name += AppConstants.generated_file_extension
+        file_path = Path(current_path)
+        if file_path.is_dir():
+            with open(file_path.joinpath(file_name), mode) as f:
+                f.write(data)
+
+    @basic_log
+    # @as_thread
+    def handle_encrypt_request(self, data: str, key: str) -> tuple[str, str]:
         """
-        Elaborate :param text:
-        :param text: passed text.
-        :return: None.
+        Encrypt data with key.
+        :param data: data to encrypt.
+        :param key: key used to encrypt data.
+        :return: encrypted data and key.
         """
-        output_text: str = ""
-        try:
-            module = self.model.import_module(constants.MODULE_TO_IMPORT)
-            output_text: str = module.main(text)
-        except ImportError:
-            output_text = "ERROR"
-        except NotImplementedError:
-            output_text = f"Unfilled elaboration function." \
-                          f" Define the main function body of the module to import: {constants.MODULE_TO_IMPORT}"
-        finally:
-            if isinstance(output_text, str):
-                self.view.update_output_textbox(output_text)
+        sleep(1.5)

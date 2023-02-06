@@ -1,7 +1,8 @@
 import threading
 from typing import Callable, Any
-from logger.logger import basic_log
 import functools
+
+from src.logger.logger import basic_log
 
 
 @basic_log

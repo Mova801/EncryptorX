@@ -1,17 +1,22 @@
-import PIL.Image
-import customtkinter as ct
-from pathlib import Path
-import tkinter as tk
+from __future__ import annotations
 
+import time
+from typing import Callable, Any
+import dearpygui.dearpygui as dpg
+import functools
+
+from src.controller import controller_constants
 from src.logger.logger import basic_init_log, basic_log
 from src.view.abc_view import AbstractView
-from src.view import view_exceptions
-from src.view.view_constants import GuiConstants, ButtonConstants, LabelConstants, TextBoxConstants, FontConstants
-from src.controller import controller_constants
+from src.view.view_constants import Colors
+from src.view.view_constants import FontConstants
+from src.view.view_constants import AppConstants
+from src.view.view_constants import ImageConstants
+from src.view.result_element import ResultElement
 
 
 @basic_init_log
-class Gui(ct.CTk, AbstractView):
+class DPGGUI(AbstractView):
     """
     Graphical User Interface class used to display the graphical interface
     In order to use a new window you must ensure to:
@@ -20,89 +25,166 @@ class Gui(ct.CTk, AbstractView):
     """
 
     def __init__(self, title: str, win_size: tuple[int, int]) -> None:
-        super().__init__()
+        # dearpygui setup
+        dpg.create_context()
+        dpg.create_viewport(title=title, width=win_size[0], height=win_size[1])
+        dpg.set_viewport_resizable(AppConstants.resizable)
 
-        # elements
-        self.__input_button = None
-        self.__bug_button = None
-        self.__input_label = None
-        self.__output_label = None
-        self.__input_textbox = None
-        self.__output_textbox = None
+        # value registry
+        with dpg.value_registry():
+            dpg.add_string_value(default_value="", tag="input_textbox_value")
+            dpg.add_string_value(default_value="", tag="input_key_value")
 
-        self.__id_counter: int = 0
+        # font registry
+        with dpg.font_registry():
+            # first argument ids the path to the .ttf or .otf file
+            self.__fonts: dict[str, int | str] = {
+                'default': dpg.add_font(
+                    AppConstants.font_path.joinpath(FontConstants.ProggyCleanSZBP), FontConstants.size_D),
+                'medium': dpg.add_font(
+                    AppConstants.font_path.joinpath(FontConstants.RobotoMedium), FontConstants.size_M),
+                'large': dpg.add_font(
+                    AppConstants.font_path.joinpath(FontConstants.ProggyCleanSZBP), FontConstants.size_L)
+            }
+
+        # texture registry
+        with dpg.texture_registry():
+            img = AppConstants.image_path.joinpath(ImageConstants.copy)
+            width, height, channels, data = dpg.load_image(str(img))
+            self.__images: dict[str, str] = {
+                'copy': 'copy_image'
+            }
+            dpg.add_static_texture(width=width, height=height, default_value=data, tag=self.__images['copy'])
 
         # window
-        self.title(title)
-        try:
-            self.geometry(f"{win_size[0]}x{win_size[1]}")
-        except ValueError:
-            raise view_exceptions.GuiInvalidWindowSizeError(value=win_size)
+        dpg.set_viewport_small_icon(AppConstants.image_path.joinpath(ImageConstants.logo))
+        dpg.setup_dearpygui()
+        dpg.show_viewport()
+        dpg.bind_font(self.__fonts['default'])
 
-        self.resizable(False, False)
-        self.protocol("WM_DELETE_WINDOW", self.stop)  # call self.close() when window gets closed
+        # setting support variables
+        self.__results_counter: int = 0
+        self.__processing: bool = False
 
-        # FIXME: not supported in recent lib update, must wait
-        self.iconbitmap(Path.cwd().joinpath(GuiConstants.icon_path).joinpath(GuiConstants.logo))
-
-        # setting window theme and appearance
-        ct.set_appearance_mode(GuiConstants.appearance_mode)
-        ct.set_default_color_theme(GuiConstants.color_theme)
-
-        self.update_time_ms: int = 100
-
-    def __generate_id(self) -> int:
+    def __increment_result_counter(func: Callable[..., Any]) -> Callable[..., Any]:
         """
-        Generate a row id for an element.
-        :return: a new id.
+        Increment the result counter variable at the end of the function.
         """
-        new_id: int = self.__id_counter
-        self.__id_counter += 1
-        return new_id
 
-    def __set_id(self, element: ct.CTkBaseClass) -> None:
+        @functools.wraps(func)
+        def wrapper(self, *args, **kwargs):
+            value = func(self, *args, **kwargs)
+            self.__results_counter += 1
+            return value
+
+        return wrapper
+
+    def __processing(func: Callable[..., Any]) -> Callable[..., Any]:
         """
-        Set the received id as a row id for an element.
-        :param element: element that needs a row id.
+        Set the processing flag (PF) of the view before function
+        execution and reset it when the function is terminated.
+        When the PF is set some actions are limited (i.e. some user input).
+        """
+
+        @functools.wraps(func)
+        def wrapper(self, *args, **kwargs):
+            self.__processing = True
+            value = func(self, *args, **kwargs)
+            self.__processing = False
+            return value
+
+        return wrapper
+
+    def __activate_button_when_text_is_present(self, element: list[str], button: str) -> None:
+        """
+        Enable the button when the element has a value.
+        Disable the button when the element has no value.
+        :param element: element to check.
+        :param button: button to enable/disable.
         :return: None.
         """
-        new_id: int = self.__generate_id()
-        element.grid(row=new_id)
+        if self.__processing:
+            dpg.disable_item(button)
+            return
+        for elem in element:
+            if not dpg.get_value(elem):
+                dpg.disable_item(button)
+                return
+        dpg.enable_item(button)
 
+    @__increment_result_counter
+    def __add_result(self, parent: str) -> ResultElement:
+        """
+        Create a new result in wait state.
+        A result in wait state is waiting for content and present a loading indicator at its center.
+        :param parent: where to attach the new result.
+        :return: new result id.
+        """
+        return ResultElement(parent, self.__results_counter)
+
+    @__processing
     @basic_log
-    def update_output_textbox(self, text: str) -> None:
-        """
-        Set the text of the textbox to the given :param text:
-        :param text: text to insert.
-        :return: None.
-        """
-        self.__output_textbox.delete(0.0, tk.END)
-        self.__output_textbox.insert(0.0, text)
+    def __clear_results(self, parent: str) -> None:
+        dpg.delete_item(parent, children_only=True)
+        self.__results_counter = 0
 
-    def __activate_button_when_text_is_present(self, btn_to_activate: ct.CTkButton, check_time: int) -> None:
+    @__processing
+    @basic_log
+    def __prepare_result(self, controller, parent: str) -> None:
+
+        result: ResultElement = self.__add_result(parent)
+
+        # put the new Result at the top of the list (shown first)
+        output_slot = dpg.get_item_children(parent, 1)
+        output_slot.reverse()
+        dpg.reorder_items(parent, 1, new_order=output_slot)
+
+        data = dpg.get_value("input_textbox_value")
+        key = dpg.get_value("input_key_value")
+        controller.handle_encrypt_request(data, key)
+        new_data, new_key = data, key
+
+        data_to_save: str = f"""# {AppConstants.app_name}{AppConstants.version}
+
+date: {time.strftime("%Y-%m-%d %H:%M:%S")}        
+key: {new_data}
+data: {new_key}
+
+========================================================================================
+"""
+        result.set_content(
+            self.__fonts['medium'], ('key: ', new_key), ('data:', new_data),
+            ('Save', lambda: self.__prepare_save_request(controller, data_to_save, 'a')),
+            ('copy', lambda: print('copy'), self.__images['copy'])
+        )
+
+    @__processing
+    @basic_log
+    def __prepare_save_request(self, controller, data, mode: str | None = 'w') -> None:
         """
-        Every :param check_time: checks if the input textbox has text in it, if so activate :param btn_to_activate:
-        :param btn_to_activate: button to activate.
-        :param check_time: time to wait between checks.
-        :return: None.
+        Open a file dialog and then send a request to save a file at the path selected by the user.
+
         """
-        btn_to_activate.after(check_time, self.__activate_button_when_text_is_present, btn_to_activate, check_time)
-        if self.__input_textbox.get(0.0, tk.END) != "\n":
-            btn_to_activate.configure(state=tk.NORMAL)
-            btn_to_activate.configure(fg_color=ButtonConstants.fg_color)
-        else:
-            btn_to_activate.configure(state=tk.DISABLED)
-            btn_to_activate.configure(fg_color=ButtonConstants.disabled_fg_color)
+        with dpg.file_dialog(label="File Dialog", width=550, height=400,
+                             show=False, callback=lambda _, output: controller.handle_save_file_request(
+                    file_name=output['file_name'], current_path=output['current_path'], data=data, mode=mode
+                ),
+                             tag="filedialog"):
+            dpg.add_file_extension(".x{.x}")  # color=(255, 0, 255, 255))
+        dpg.show_item("filedialog")
 
     @basic_log
     def run(self) -> None:
         """Run the view mainloop."""
-        self.mainloop()
+        while dpg.is_dearpygui_running():
+            self.__activate_button_when_text_is_present(["input_textbox_value", "input_key_value"], "process_btn")
+
+            dpg.render_dearpygui_frame()
 
     @basic_log
     def stop(self) -> None:
         """Destroy the window when closed."""
-        self.destroy()
+        dpg.destroy_context()
 
     @basic_log
     def build(self, controller) -> None:
@@ -111,106 +193,66 @@ class Gui(ct.CTk, AbstractView):
         :param controller: controller that handles the data user interactions.
         :return: None.
         """
-        input_label_text: str = "Input"
-        output_label_text: str = "Output"
-        input_button_text: str = "COMPUTE"
-        bug_button_text: str = "Report Bug"
+        with dpg.window(tag="primary_window"):
+            # ========================================= Spacing =========================================
+            dpg.add_spacer(height=5)
 
-        # set view grid
-        self.grid_columnconfigure(0, weight=1)  # 1 column
-        self.grid_rowconfigure(0, weight=1)  # 1 row
+            # ========================================== Menu ==========================================
+            with dpg.menu_bar():
+                with dpg.menu(label="File"):
+                    dpg.add_menu_item(label="Open file", callback=lambda: print("[WIP] text from file"))
 
-        # set self grid
-        self.grid_columnconfigure(0, weight=1)  # 1 column
-        [self.grid_rowconfigure(i, weight=0) for i in range(8)]  # 5 rows (id: 0 -> 4)
+                    # save button
+                    dpg.add_menu_item(label="Save", callback=lambda: self.__prepare_save_request(controller, 'suca'))
 
-        # ============ title label for input ============
-        self.__input_label = ct.CTkLabel(
-            master=self,
-            text=input_label_text,
-            corner_radius=LabelConstants.corner_rad,
-            text_color=LabelConstants.text_color,
-            fg_color=LabelConstants.fg_color,
-            font=(FontConstants.font, FontConstants.size_T)
-        )
-        self.__input_label.grid(
-            row=self.__set_id(self.__input_label), column=0,
-            padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
-            sticky=LabelConstants.sticky)
+                with dpg.menu(label="Settings"):
+                    dpg.add_menu_item(label="Full screen", check=True,
+                                      callback=lambda: dpg.toggle_viewport_fullscreen())
 
-        # ============ text for input ============
-        self.__input_textbox = ct.CTkTextbox(
-            master=self,
-            height=TextBoxConstants.height,
-            font=(FontConstants.font, FontConstants.size_M),
-        )
-        self.__input_textbox.grid(
-            row=self.__set_id(self.__input_textbox), column=0,
-            padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
-            sticky=TextBoxConstants.sticky)
-        # self.input_textbox.insert("0.0", TextBoxConstants.default_input_text)
+                with dpg.menu(label="Help"):
+                    dpg.add_menu_item(
+                        label="Report bug", callback=lambda: controller.handle_hyperlink_request(
+                            controller_constants.RequestType.BUG_REPORT)
+                    )
 
-        # ============ elaborate button ============
-        self.__input_button = ct.CTkButton(
-            master=self,
-            text=input_button_text,
-            height=ButtonConstants.height,
-            width=ButtonConstants.width,
-            text_color=ButtonConstants.text_color,
-            fg_color=ButtonConstants.fg_color,
-            hover_color=ButtonConstants.hover_color,
-            text_color_disabled=ButtonConstants.disabled_text_color,
-            font=(FontConstants.font, FontConstants.size_L, 'bold'),
-            command=lambda: controller.handle_elaborate_click(self.__output_textbox.get(0.0, tk.END))
-        )
-        self.__input_button.grid(
-            row=self.__set_id(self.__input_button), column=0,
-            padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
-            sticky='sn')
+                sga_id: int = dpg.add_text("EncryptorX", indent=dpg.get_viewport_width() // 2.2)
+                dpg.bind_item_font(sga_id, self.__fonts['medium'])
 
-        # ============ title label for output ============
-        self.__output_label = ct.CTkLabel(
-            master=self,
-            text=output_label_text,
-            corner_radius=LabelConstants.corner_rad,
-            text_color=LabelConstants.text_color,
-            fg_color=LabelConstants.fg_color,
-            font=(FontConstants.font, FontConstants.size_T)
-        )
-        self.__output_label.grid(
-            row=self.__set_id(self.__output_label), column=0,
-            padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
-            sticky=LabelConstants.sticky)
+            # ======================================== Input Text ==========================================
+            dpg.add_text("Enter text to process:", tag="input_text")
+            input_text_id: int = dpg.add_input_text(tag="input_textbox", multiline=True,
+                                                    width=dpg.get_viewport_width(),
+                                                    height=dpg.get_viewport_height() // 3.3,
+                                                    source="input_textbox_value")
+            dpg.bind_item_font(input_text_id, self.__fonts['medium'])
 
-        # ============ text for output ============ì
-        self.__output_textbox = ct.CTkTextbox(
-            master=self,
-            height=TextBoxConstants.height,
-            font=(FontConstants.font, FontConstants.size_M),
-        )
-        self.__output_textbox.grid(
-            row=self.__set_id(self.__output_textbox), column=0,
-            padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady,
-            sticky=TextBoxConstants.sticky)
-        self.__output_textbox.insert("0.0", TextBoxConstants.default_output_text)
+            # ======================================== Input Key ========================================
+            with dpg.group(horizontal=True):
+                dpg.add_text("Key: ", tag="input_key")
+                input_key_id: int = dpg.add_input_text(tag="input_text_key",
+                                                       width=dpg.get_viewport_width(),
+                                                       source="input_key_value")
+                dpg.bind_item_font(input_key_id, self.__fonts['medium'])
 
-        image = PIL.Image.open(Path.cwd().joinpath(GuiConstants.icon_path).joinpath(GuiConstants.bug_icon))
+            # ========================================= Spacing ==========================================
+            dpg.add_spacer(height=1)
 
-        # ============ bug_icon button ============
-        self.__bug_button = ct.CTkButton(
-            master=self,
-            text=bug_button_text,
-            height=ButtonConstants.height,
-            text_color=ButtonConstants.text_color,
-            fg_color=ButtonConstants.fg_color,
-            hover_color=ButtonConstants.hover_color,
-            font=(FontConstants.font, FontConstants.size_M),
-            image=ct.CTkImage(dark_image=image, size=GuiConstants.icon_size),
-            command=lambda: controller.handle_open_link_request(controller_constants.RequestType.BUG_REPORT)
-        )
-        self.__bug_button.grid(
-            row=self.__set_id(self.__bug_button), column=0,
-            padx=GuiConstants.inner_padx, pady=GuiConstants.inner_pady)
+            # ======================================= Result Window =======================================
+            with dpg.child_window(tag="result_window", autosize_x=True, height=(dpg.get_viewport_height() // 3) + 35):
+                pass
 
-        # UPDATE BUTTON STATE
-        self.__activate_button_when_text_is_present(self.__input_button, self.update_time_ms)
+            # ========================================= Buttons =========================================
+            with dpg.group(horizontal=True):
+                # elaborate button
+                btn_elaborate_id: int = dpg.add_button(
+                    label="Process", tag="process_btn",
+                    callback=lambda: self.__prepare_result(controller, "result_window"))
+                dpg.bind_item_font(btn_elaborate_id, self.__fonts['medium'])
+                # clear button
+                btn_clear_id: int = dpg.add_button(
+                    label="Clear All", tag="clear_btn", callback=lambda: self.__clear_results("result_window"))
+                dpg.bind_item_font(btn_clear_id, self.__fonts['medium'])
+                dpg.add_text(
+                    'v' + AppConstants.version, color=Colors.GOLD.rgb, indent=dpg.get_viewport_width() // 1.15)
+
+            dpg.set_primary_window('primary_window', True)

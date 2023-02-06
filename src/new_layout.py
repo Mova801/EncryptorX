@@ -2,8 +2,8 @@ import dearpygui.dearpygui as dpg
 
 from view.view_constants import Colors
 from view.view_constants import FontConstants
-from view.view_constants import GuiConstants
-from view.view_constants import TextBoxConstants
+from view.view_constants import AppConstants
+from view.view_constants import ImageConstants
 import time
 
 # dearpygui setup
@@ -14,15 +14,13 @@ dpg.set_viewport_resizable(False)
 # value registry
 with dpg.value_registry():
     dpg.add_string_value(default_value="", tag="input_textbox_value")
+    dpg.add_string_value(default_value="", tag="input_key_value")
 
 # font registry
 with dpg.font_registry():
     # first argument ids the path to the .ttf or .otf file
-    default_font = dpg.add_font("assets/fonts/ProggyCleanSZBP.ttf", FontConstants.size_M)
-    medium_font = dpg.add_font("assets/fonts/ProggyCleanSZBP.ttf", FontConstants.size_M + 1)
-    larger_font = dpg.add_font("assets/fonts/Roboto-Medium.ttf", FontConstants.size_M + 2)
-    title_font = dpg.add_font("assets/fonts/Roboto-Medium.ttf", FontConstants.size_M + 3)
-    large_font = dpg.add_font("assets/fonts/Roboto-Medium.ttf", FontConstants.size_L)
+    default_font = dpg.add_font("assets/fonts/ProggyCleanSZBP.ttf", FontConstants.size_D)
+    large_font = dpg.add_font("assets/fonts/Roboto-Medium.ttf", FontConstants.size_M)
 
 width, height, channels, data = dpg.load_image("assets/images/copy16.png")
 
@@ -30,6 +28,7 @@ with dpg.texture_registry():
     dpg.add_static_texture(width=width, height=height, default_value=data, tag="copy_image")
 
 encryption_number: int = 0
+processing: bool = False
 
 
 def _display_data(win_id: int) -> None:
@@ -38,7 +37,7 @@ def _display_data(win_id: int) -> None:
         tag: str = f"btn_save{win_id}"
         btn_save_id: int = dpg.add_button(label="Save", tag=tag, callback=lambda: print("salva ora"),
                                           width=80, height=80)
-        dpg.bind_item_font(btn_save_id, larger_font)
+        dpg.bind_item_font(btn_save_id, large_font)
         with dpg.group():
             tag: str = f"date{win_id}"
             dpg.add_text(f"date: {date}", tag=tag)
@@ -48,12 +47,12 @@ def _display_data(win_id: int) -> None:
                 tag: str = f"output_text_key{win_id}"
                 out_key_id: int = dpg.add_input_text(default_value="...", tag=tag,
                                                      multiline=True, readonly=True, height=25)
-                dpg.bind_item_font(out_key_id, larger_font)
+                dpg.bind_item_font(out_key_id, large_font)
                 tag: str = f"copyK{win_id}"
                 dpg.add_image_button("copy_image", tag=tag, height=18, width=18,
                                      callback=lambda: print("copy key"))
                 with dpg.tooltip(tag):
-                    dpg.add_text("Copy key")
+                    dpg.add_text("copy")
             with dpg.group(horizontal=True):
                 tag: str = f"dataText{win_id}"
                 dpg.add_text("data:", tag=tag)
@@ -61,12 +60,12 @@ def _display_data(win_id: int) -> None:
                 out_data_id: int = dpg.add_input_text(default_value="...",
                                                       tag=tag,
                                                       multiline=True, readonly=True, height=25)
-                dpg.bind_item_font(out_data_id, larger_font)
+                dpg.bind_item_font(out_data_id, large_font)
                 tag: str = f"copyD{win_id}"
                 dpg.add_image_button("copy_image", tag=tag, height=18, width=18,
                                      callback=lambda: print("copy data"))
                 with dpg.tooltip(tag):
-                    dpg.add_text("Copy data")
+                    dpg.add_text("copy")
 
 
 def _show_new_encryption(parent: str) -> int:
@@ -78,7 +77,7 @@ def _show_new_encryption(parent: str) -> int:
         with dpg.group(horizontal=True):
             # loading indicator
             indicator_x: int = dpg.get_viewport_width() // 2 - 50
-            indicator_y: int = 30
+            indicator_y: int = 100 // 3
             tag = f"output_loading{encryption_number}"
             dpg.add_loading_indicator(tag=tag, pos=[indicator_x, indicator_y])
     win_id: int = encryption_number
@@ -86,21 +85,19 @@ def _show_new_encryption(parent: str) -> int:
     return win_id
 
 
-def count(n: int) -> None:
-    for i in range(n):
-        print(i)
-
-
 def process(parent: str) -> None:
+    global processing
+    processing = True
     win_id: int = _show_new_encryption(parent)
 
     output_slot = dpg.get_item_children(parent, 1)
     output_slot.reverse()
     dpg.reorder_items(parent, 1, new_order=output_slot)
 
-    count(109999)
+    time.sleep(1)
     dpg.delete_item(f"output_loading{win_id}")
     _display_data(win_id)
+    processing = False
 
 
 def _clear_encryption_list(parent: str) -> None:
@@ -108,16 +105,15 @@ def _clear_encryption_list(parent: str) -> None:
     dpg.delete_item(parent, children_only=True)
     encryption_number = 0
 
-    # window content
 
-
+# window content
 with dpg.window(label="EncryptorX", tag="primary_window"):
     dpg.bind_font(default_font)
 
     # spacing
     dpg.add_spacer(height=5)
 
-    # header
+    # menu bar
     with dpg.menu_bar():
         with dpg.menu(label="File"):
             dpg.add_menu_item(label="Open file", callback=lambda: print("text from file"))
@@ -138,15 +134,21 @@ with dpg.window(label="EncryptorX", tag="primary_window"):
             dpg.add_menu_item(label="Report bug", callback=lambda: print("Report bug"))
 
         sga_id: int = dpg.add_text("EncryptorX", indent=dpg.get_viewport_width() // 2.2)
-        dpg.bind_item_font(sga_id, title_font)
+        dpg.bind_item_font(sga_id, large_font)
         dpg.add_text("v0.0.1-alpha", color=Colors.GOLD.rgb, indent=dpg.get_viewport_width() // 1.15)
 
-    # input
+    # input text
     dpg.add_text("Enter text to process:", label="input_text")
     in_textbox_id: int = dpg.add_input_text(label="input_textbox", multiline=True,
-                                            width=dpg.get_viewport_width(), height=dpg.get_viewport_height() // 3,
+                                            width=dpg.get_viewport_width(), height=dpg.get_viewport_height() // 3.3,
                                             source="input_textbox_value")
-    dpg.bind_item_font(in_textbox_id, larger_font)
+    dpg.bind_item_font(in_textbox_id, large_font)
+    # input key
+    with dpg.group(horizontal=True):
+        dpg.add_text("Key: ", label="input_key")
+        in_text_id: int = dpg.add_input_text(label="input_text", width=dpg.get_viewport_width(),
+                                             source="input_key_value")
+        dpg.bind_item_font(in_text_id, large_font)
 
     # spacing
     dpg.add_spacer(height=1)
@@ -160,14 +162,14 @@ with dpg.window(label="EncryptorX", tag="primary_window"):
         # elaborate button
         btn_elaborate_id: int = dpg.add_button(
             label="Process", tag="process_btn", callback=lambda: process("output_window"))
-        dpg.bind_item_font(btn_elaborate_id, larger_font)
+        dpg.bind_item_font(btn_elaborate_id, large_font)
         # clear button
         btn_clear_id: int = dpg.add_button(
             label="Clear All", tag="clear_btn", callback=lambda: _clear_encryption_list("output_window"))
-        dpg.bind_item_font(btn_clear_id, larger_font)
+        dpg.bind_item_font(btn_clear_id, large_font)
 
 # window settings
-dpg.set_viewport_small_icon(GuiConstants.icon_path + '/ex_hq.ico')
+dpg.set_viewport_small_icon(AppConstants.image_path.joinpath(ImageConstants.logo))
 dpg.set_primary_window("primary_window", True)
 dpg.setup_dearpygui()
 dpg.show_viewport()
@@ -176,7 +178,7 @@ dpg.show_viewport()
 # dpg.start_dearpygui()
 while dpg.is_dearpygui_running():
     # enabled/disable process button if there is no text to process
-    if dpg.get_value("input_textbox_value"):
+    if dpg.get_value("input_textbox_value") and dpg.get_value("input_key_value") and not processing:
         dpg.enable_item("process_btn")
     else:
         dpg.disable_item("process_btn")

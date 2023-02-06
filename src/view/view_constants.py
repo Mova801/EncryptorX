@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from pathlib import Path
+
 from src.util import color
 
 
@@ -23,16 +25,28 @@ class Colors:
 
 
 @dataclass
-class GuiConstants:
-    """Class containing default values for application Frame elements."""
-    inner_padx: int = 30
-    inner_pady: int = 10
-    icon_size: tuple[int, int] = (25, 25)
-    icon_path: str = "assets/images"
-    logo: str = "ex_logo2.ico"
-    bug_icon: str = "bug_icon.png"
+class AppConstants:
+    """Class containing default values for application GUI elements."""
+    app_name: str = 'EncryptorX'
+    version: str = '0.0.3-alpha'
+    generated_file_extension: str = '.encx'
+    resizable: bool = False
+    image_path = Path("assets/images")
+    font_path = Path("assets/fonts")
     appearance_mode: str = "dark"
     color_theme: str = "blue"
+
+
+class ResultConstants:
+    """Class containing default values for application Result element."""
+    height: int = 100
+
+
+class ImageConstants:
+    """"""
+    copy = Path("copy16.png")
+    logo = Path("ex_hq.ico")
+    # size: tuple[int, int] = (25, 25)
 
 
 @dataclass
@@ -72,7 +86,8 @@ class TextBoxConstants:
 @dataclass
 class FontConstants:
     """Class containing default values for application Font elements."""
-    font: str = "Roboto Medium"
-    size_M: int = 13
-    size_L: int = 22
-    size_T: int = 32
+    ProggyCleanSZBP = Path("ProggyCleanSZBP.ttf")
+    RobotoMedium = Path("Roboto-Medium.ttf")
+    size_D: int = 13
+    size_M: int = 15
+    size_L: int = 18

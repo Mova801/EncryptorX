@@ -10,7 +10,7 @@ from view.view import DPGGUI
 
 def main() -> None:
     """Create and run a new application."""
-    gui = DPGGUI(win_size=(900, 550))
+    gui = DPGGUI(win_size=(900, 560), is_loading=True)
     app = Controller(model=Model(), view=gui)
     app.start()
 

@@ -2,9 +2,9 @@
 Module containing the application logic.
 """
 from __future__ import annotations
-
-import webbrowser
 from pathlib import Path
+import pyperclip
+import webbrowser
 
 from src.logger.logger import basic_init_log
 from src.view.view_constants import AppConstants
@@ -40,3 +40,11 @@ class Model:
         if file_path.is_dir():
             with open(file_path.joinpath(file_name), mode) as f:
                 f.write(data)
+
+    def copy2clipboard(self, data: str) -> None:
+        """
+        Copy data to clipboard.
+        :param data: data to copy.
+        :return: None.
+        """
+        pyperclip.copy(data)

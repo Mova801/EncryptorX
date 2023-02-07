@@ -27,8 +27,9 @@ class ResultElement:
         return self.__id
 
     def set_content(
-            self, font: dpg.font, text0: tuple[str, str], text1: tuple[str, str], btn_0: tuple[str, Callable[..., Any]],
-            btn_1: tuple[str, Callable[..., Any], str]
+            self, font: dpg.font, text0: tuple[str, str], text1: tuple[str, str],
+            main_button: tuple[str, Callable[..., Any]],
+            secondary_button: tuple[str, Callable[..., Any], str]
     ) -> None:
         """
         Set the content of the Result.
@@ -36,41 +37,54 @@ class ResultElement:
         :param font: font used for the result elements.
         :param text0: tuple containing text_label and text_content for text0 element.
         :param text1: tuple containing text_label and text_content for text1 element.
-        :param btn_0: main button tuple containing btn_label and btn_function for the btn_0 element.
-        :param btn_1: main button tuple containing btn_tooltip_label, btn_function and btn_icon for the btn_1 and btn_2
+        :param main_button: main button tuple containing btn_label and btn_function for the btn_0 element.
+        :param secondary_button: main button tuple containing btn_tooltip_label, btn_function and btn_icon for the btn_1 and btn_2
         elements.
         """
+        text0_label: str = text0[0]
+        text0_data: str = text0[1]
+        text1_label: str = text1[0]
+        text1_data: str = text1[1]
+        main_btn_label: str = main_button[0]
+        main_btn_callback: Callable[..., Any] = main_button[1]
+        secondary_btn_label: str = secondary_button[0]
+        secondary_btn_callback: Callable[..., Any] = secondary_button[1]
+        secondary_btn_image: str = secondary_button[2]
+
         date: str = time.strftime("%Y-%m-%d %H:%M:%S")
         with dpg.group(parent=f"result{self.__id}", tag=f"result_child{self.__id}", horizontal=True):
-            btn_0_id: int = dpg.add_button(
-                label=btn_0[0], tag=f"result_save{self.__id}", callback=btn_0[1], width=80,
+            main_btn_id: int = dpg.add_button(
+                label=main_button[0], tag=f"result_main_btn{self.__id}", callback=main_button[1], width=80,
                 height=80
             )
-            dpg.bind_item_font(btn_0_id, font)
+            dpg.bind_item_font(main_btn_id, font)
             with dpg.group():
                 dpg.add_text(f"date: {date}", tag=f"date{self.__id}")
+
                 with dpg.group(horizontal=True):
-                    dpg.add_text(text0[0], tag=f"result_text00{self.__id}")
+                    dpg.add_text(text0_label, tag=f"result_text0_label{self.__id}")
                     text0_id: int = dpg.add_input_text(
-                        default_value=text0[1], tag=f"result_text01{self.__id}", multiline=True, readonly=True,
+                        default_value=text0_data, tag=f"result_text0_data{self.__id}", multiline=True, readonly=True,
                         height=25
                     )
                     dpg.bind_item_font(text0_id, font)
                     dpg.add_image_button(
-                        btn_1[2], tag=f"result_btn0{self.__id}", height=18, width=18,
-                        callback=btn_1[1])
-                    with dpg.tooltip(f"result_btn0{self.__id}"):
-                        dpg.add_text(btn_1[0])
+                        secondary_btn_image, tag=f"result_btn1{self.__id}", height=18, width=18,
+                        callback=lambda: secondary_btn_callback(text0_data))
+                    with dpg.tooltip(f"result_btn1{self.__id}"):
+                        dpg.add_text(secondary_btn_label)
+
                 with dpg.group(horizontal=True):
-                    dpg.add_text(text1[0], tag=f"result_text10{self.__id}")
+                    dpg.add_text(text1_label, tag=f"result_text1_label{self.__id}")
                     out_data_id: int = dpg.add_input_text(
-                        default_value=text1[1], tag=f"result_text11{self.__id}", multiline=True, readonly=True,
+                        default_value=text1_data, tag=f"result_text1_data{self.__id}", multiline=True, readonly=True,
                         height=25
                     )
                     dpg.bind_item_font(out_data_id, font)
-                    dpg.add_image_button(btn_1[2], tag=f"result_btn1{self.__id}", height=18, width=18,
-                                         callback=btn_1[1])
-                    with dpg.tooltip(f'result_btn1{self.__id}'):
-                        dpg.add_text(btn_1[0])
+                    dpg.add_image_button(
+                        secondary_btn_image, tag=f"result_btn2{self.__id}", height=18, width=18,
+                        callback=lambda: secondary_btn_callback(text1_data))
+                    with dpg.tooltip(f'result_btn2{self.__id}'):
+                        dpg.add_text(secondary_btn_label)
 
         dpg.delete_item(f"result_loading{self.__id}")

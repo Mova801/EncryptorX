@@ -10,6 +10,7 @@ from src.util import color
 @dataclass
 class Colors:
     """Class containing default colors value."""
+    AZZURE = color.Color("#569EFF")
     BLACK = color.Color("#000000")
     CYAN = color.Color("#1F6AA5")
     DARK_CYAN = color.Color("#124063")
@@ -22,6 +23,7 @@ class Colors:
     GREEN = color.Color("#48B553")
     LIGHT_CYAN = color.Color("#477BA3")
     LIGHT_RED = color.Color("#C9515D")
+    MAGENTA = color.Color("#A100FF")
     RED = color.Color("#FF0000")
     SMOKE_WHITE = color.Color("#919191")
     WHITE = color.Color("#FFFFFF")
@@ -49,6 +51,7 @@ class ImageConstants:
     """"""
     copy = Path("copy16.png")
     logo = Path("ex_hq.ico")
+    loading = Path("ex100.png")
     # size: tuple[int, int] = (25, 25)
 
 

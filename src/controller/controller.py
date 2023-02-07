@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from time import sleep
 
 from src.controller import controller_constants
@@ -48,6 +49,15 @@ class Controller:
         self.model.store_data(file_name, current_path, data, mode)
 
     @basic_log
+    def handle_copy_2_clipboard_request(self, data: str) -> None:
+        """
+        Handle a request to copy data to clipboard.
+        :param data: data to copy.
+        :return: None.
+        """
+        self.model.copy2clipboard(data)
+
+    @basic_log
     # @as_thread
     def handle_encrypt_request(self, data: str, key: str) -> tuple[str, str]:
         """
@@ -58,4 +68,4 @@ class Controller:
         """
         time: float = len(data + key) / 10
         sleep(time)
-        return str(time), str(time)
+        return str(time), str(time + 1)

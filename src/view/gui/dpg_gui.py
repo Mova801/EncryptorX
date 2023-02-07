@@ -1,7 +1,6 @@
 """
 Module containing the DPGGUI a gui using dearpygui.
 """
-
 from __future__ import annotations
 import dearpygui.dearpygui as dpg
 import functools
@@ -11,11 +10,12 @@ from typing import Callable, Any
 from src.controller import controller_constants
 from src.logger.logger import basic_init_log, basic_log
 from src.view.abc_view import AbstractView
+from src.view.elements.init_loading_window import InitialLoading
 from src.view.view_constants import Colors
 from src.view.view_constants import FontConstants
 from src.view.view_constants import AppConstants
 from src.view.view_constants import ImageConstants
-from src.view.result_element import ResultElement
+from src.view.elements.result_element import ResultElement
 
 
 def _prepare_data_to_elaborate(controller, *args) -> Any:
@@ -48,14 +48,19 @@ class DPGGUI(AbstractView):
         - run the window
     """
 
-    def __init__(self, win_size: tuple[int, int], title: str | None = "") -> None:
+    def __init__(self, win_size: tuple[int, int], title: str | None = "", is_loading: bool | None = False) -> None:
         if not title:
             title = AppConstants.app_name
+        self.title = title
 
-            # dearpygui setup
+        # dearpygui setup
         dpg.create_context()
         dpg.create_viewport(title=title, width=win_size[0], height=win_size[1])
         dpg.set_viewport_resizable(AppConstants.resizable)
+
+        self.win_size: tuple[int, int] = win_size
+        if is_loading:
+            self.__setup_loading()
 
         # value registry
         with dpg.value_registry():
@@ -71,7 +76,7 @@ class DPGGUI(AbstractView):
                 'medium': dpg.add_font(
                     AppConstants.font_path.joinpath(FontConstants.RobotoMedium), FontConstants.size_M),
                 'large': dpg.add_font(
-                    AppConstants.font_path.joinpath(FontConstants.ProggyCleanSZBP), FontConstants.size_L)
+                    AppConstants.font_path.joinpath(FontConstants.RobotoMedium), FontConstants.size_L)
             }
 
         # texture registry
@@ -93,6 +98,15 @@ class DPGGUI(AbstractView):
         self.__results_counter: int = 0
         self.__processing: bool = False
         self.__fd_generated: bool = False
+
+    def __setup_loading(self) -> None:
+        """"""
+        # width = height = 200
+        # self.init_loading = InitialLoading(width, height, AppConstants.image_path.joinpath(ImageConstants.loading))
+
+    def __stop_loading(self) -> None:
+        """"""
+        # self.init_loading.delete()
 
     def __increment_result_counter(func: Callable[..., Any]) -> Callable[..., Any]:
         """
@@ -140,7 +154,7 @@ class DPGGUI(AbstractView):
                 return
         dpg.enable_item(button)
 
-    @__increment_result_counter  # type: ignore
+    @__increment_result_counter
     def __add_result(self, parent: str) -> ResultElement:
         """
         Create a new result in wait state.
@@ -150,7 +164,7 @@ class DPGGUI(AbstractView):
         """
         return ResultElement(parent, self.__results_counter)
 
-    @__processing  # type: ignore
+    @__processing
     @basic_log
     def __clear_results(self, parent: str) -> None:
         """
@@ -161,9 +175,9 @@ class DPGGUI(AbstractView):
         dpg.delete_item(parent, children_only=True)
         self.__results_counter = 0
 
-    @__processing  # type: ignore
+    @__processing
     @basic_log
-    def __prepare_result(self, controller, parent: str) -> None:
+    def __prepare_result_element(self, controller, parent: str) -> None:
         """
         Prepare a new result to show data.
         :param controller: controller used to access functions.
@@ -174,6 +188,7 @@ class DPGGUI(AbstractView):
 
         # put the new Result at the top of the list (shown first)
         output_slot = dpg.get_item_children(parent, 1)
+        output_slot.sort()
         output_slot.reverse()
         dpg.reorder_items(parent, 1, new_order=output_slot)
 
@@ -183,14 +198,14 @@ class DPGGUI(AbstractView):
         data_to_save: str = _prepare_message(new_data, new_key)
 
         result.set_content(
-            self.__fonts['medium'], ('key: ', new_key), ('data:', new_data),
-            ('Save', lambda: self.__prepare_save_request(controller, data_to_save, 'a')),  # type: ignore
-            ('copy', lambda: print('copy'), self.__images['copy'])  # type: ignore
+            self.__fonts['medium'], text0=('key: ', new_key), text1=('data:', new_data),
+            main_button=('Save', lambda: self.__open_file_dialog(controller, data_to_save, 'a')),
+            secondary_button=('copy', controller.handle_copy_2_clipboard_request, self.__images['copy'])
         )
 
-    @__processing  # type: ignore
+    @__processing
     @basic_log
-    def __prepare_save_request(self, controller, data, mode: str | None = 'w') -> None:
+    def __open_file_dialog(self, controller, data, mode: str | None = 'w') -> None:
         """
         Open a file dialog and then send a request to save a file at the path selected by the user.
         :param controller: controller used to access functions.
@@ -234,6 +249,8 @@ class DPGGUI(AbstractView):
         :param controller: controller that handles the data user interactions.
         :return: None.
         """
+        self.__stop_loading()
+
         # ========================================= PRYMARY WINDOW =========================================
         with dpg.window(tag="primary_window"):
             # ========================================= Spacing =========================================
@@ -245,7 +262,7 @@ class DPGGUI(AbstractView):
                     dpg.add_menu_item(label="Open file", callback=lambda: print("[WIP] text from file"))
 
                     # save button
-                    dpg.add_menu_item(label="Save", callback=lambda: self.__prepare_save_request(controller, 'suca'))
+                    dpg.add_menu_item(label="Save", callback=lambda: self.__open_file_dialog(controller, 'suca'))
 
                 with dpg.menu(label="Settings"):
                     dpg.add_menu_item(label="Full screen", check=True,
@@ -288,15 +305,15 @@ class DPGGUI(AbstractView):
                 # elaborate button
                 btn_elaborate_id: int = dpg.add_button(
                     label="Process", tag="process_btn",
-                    callback=lambda: self.__prepare_result(controller, "result_window"))
-                dpg.bind_item_font(btn_elaborate_id, self.__fonts['medium'])
+                    callback=lambda: self.__prepare_result_element(controller, "result_window"))
+                dpg.bind_item_font(btn_elaborate_id, self.__fonts['large'])
                 # clear button
                 btn_clear_id: int = dpg.add_button(
                     label="Clear All", tag="clear_btn", callback=lambda: self.__clear_results("result_window"))
-                dpg.bind_item_font(btn_clear_id, self.__fonts['medium'])
+                dpg.bind_item_font(btn_clear_id, self.__fonts['large'])
                 dpg.add_text(
                     'v' + AppConstants.version, color=Colors.GOLD.rgb,
-                    indent=dpg.get_viewport_width() // 1.15)  # type: ignore
+                    indent=dpg.get_viewport_width() // 1.15)
 
             # set primary window
             dpg.set_primary_window('primary_window', True)

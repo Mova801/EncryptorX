@@ -11,7 +11,8 @@ from controller import controller_constants
 from logger.logger import basic_init_log, basic_log
 from util.multithreading import as_thread
 from view.abc_view import AbstractView
-from view.elements.init_loading_window import InitialLoading
+from view.elements.error_popup import InvalidKeyErrorPopup
+# from view.elements.init_loading_window import InitialLoading
 from view.elements.result_element import ResultElement
 from view.view_constants import Colors
 from view.view_constants import FontConstants
@@ -98,6 +99,11 @@ class DPGGUI(AbstractView):
         dpg.setup_dearpygui()
         dpg.show_viewport()
         dpg.bind_font(self.__fonts['default'])
+
+        # popups
+        self.popups = {
+            'key_error': InvalidKeyErrorPopup((dpg.get_viewport_width() // 2, dpg.get_viewport_height() // 2))
+        }
 
         # setting support variables
         self.__results_counter: int = 0
@@ -202,6 +208,7 @@ class DPGGUI(AbstractView):
         new_data, new_key = _prepare_data_to_elaborate(controller, data, key)
         if not new_data:
             result.delete()
+            self.popups['key_error'].show()
             return
 
         data_to_save: str = _prepare_message(new_key, new_data)

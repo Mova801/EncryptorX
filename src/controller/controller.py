@@ -69,14 +69,13 @@ class Controller:
         :return: encrypted data and key.
         """
         res: str = ""
-        used_func: Callable[..., Any] = None
         match key:
             case 'bin':
                 used_func = bin
             case 'hex':
                 used_func = hex
             case _:
-                return None, None
+                return None, key
         for char in data:
             res += used_func(ord(char))[2:] + ' '
         return res, key

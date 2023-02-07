@@ -1,11 +1,11 @@
 """
 Module containing a layout item 'ResultElement' (use dearpygui).
 """
+import dearpygui.dearpygui as dpg
+import time
 from typing import Callable, Any
 
-import dearpygui.dearpygui as dpg
-from src.view.view_constants import ResultConstants
-import time
+from view.view_constants import ResultConstants
 
 
 class ResultElement:
@@ -88,3 +88,6 @@ class ResultElement:
                         dpg.add_text(secondary_btn_label)
 
         dpg.delete_item(f"result_loading{self.__id}")
+
+    def delete(self) -> None:
+        dpg.delete_item(self.__parent, children_only=True)

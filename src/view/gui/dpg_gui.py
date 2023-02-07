@@ -7,15 +7,17 @@ import functools
 import time
 from typing import Callable, Any
 
-from src.controller import controller_constants
-from src.logger.logger import basic_init_log, basic_log
-from src.view.abc_view import AbstractView
-from src.view.elements.init_loading_window import InitialLoading
-from src.view.view_constants import Colors
-from src.view.view_constants import FontConstants
-from src.view.view_constants import AppConstants
-from src.view.view_constants import ImageConstants
-from src.view.elements.result_element import ResultElement
+from controller import controller_constants
+from logger.logger import basic_init_log, basic_log
+from util.multithreading import as_thread
+from view.abc_view import AbstractView
+from view.elements.init_loading_window import InitialLoading
+from view.elements.result_element import ResultElement
+from view.view_constants import Colors
+from view.view_constants import FontConstants
+from view.view_constants import AppConstants
+from view.view_constants import ImageConstants
+from view.view_status import ViewStatus
 
 
 def _prepare_data_to_elaborate(controller, *args) -> Any:
@@ -58,9 +60,11 @@ class DPGGUI(AbstractView):
         dpg.create_viewport(title=title, width=win_size[0], height=win_size[1])
         dpg.set_viewport_resizable(AppConstants.resizable)
 
+        self.__status = ViewStatus.INIT
+
         self.win_size: tuple[int, int] = win_size
-        if is_loading:
-            self.__setup_loading()
+        # if is_loading:
+        #     self.__setup_loading()
 
         # value registry
         with dpg.value_registry():
@@ -90,6 +94,7 @@ class DPGGUI(AbstractView):
 
         # window
         dpg.set_viewport_small_icon(AppConstants.image_path.joinpath(ImageConstants.logo))
+        dpg.set_viewport_large_icon(AppConstants.image_path.joinpath(ImageConstants.logo))
         dpg.setup_dearpygui()
         dpg.show_viewport()
         dpg.bind_font(self.__fonts['default'])
@@ -97,15 +102,15 @@ class DPGGUI(AbstractView):
         # setting support variables
         self.__results_counter: int = 0
         self.__processing: bool = False
-        self.__fd_generated: bool = False
+        self.__has_filedialog: bool = False
 
+    @as_thread
     def __setup_loading(self) -> None:
         """"""
-        # width = height = 200
+        width = height = 200
         # self.init_loading = InitialLoading(width, height, AppConstants.image_path.joinpath(ImageConstants.loading))
-
-    def __stop_loading(self) -> None:
-        """"""
+        # while self.__status == ViewStatus.INIT:
+        #     print('I\'m a thread')
         # self.init_loading.delete()
 
     def __increment_result_counter(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -195,17 +200,21 @@ class DPGGUI(AbstractView):
         data = dpg.get_value("input_textbox_value")
         key = dpg.get_value("input_key_value")
         new_data, new_key = _prepare_data_to_elaborate(controller, data, key)
-        data_to_save: str = _prepare_message(new_data, new_key)
+        if not new_data:
+            result.delete()
+            return
+
+        data_to_save: str = _prepare_message(new_key, new_data)
 
         result.set_content(
             self.__fonts['medium'], text0=('key: ', new_key), text1=('data:', new_data),
-            main_button=('Save', lambda: self.__open_file_dialog(controller, data_to_save, 'a')),
+            main_button=('Save', lambda: self.__open_file_dialog(controller, [data_to_save], 'a')),
             secondary_button=('copy', controller.handle_copy_2_clipboard_request, self.__images['copy'])
         )
 
     @__processing
     @basic_log
-    def __open_file_dialog(self, controller, data, mode: str | None = 'w') -> None:
+    def __open_file_dialog(self, controller, data: list[Any], mode: str | None = 'w') -> None:
         """
         Open a file dialog and then send a request to save a file at the path selected by the user.
         :param controller: controller used to access functions.
@@ -213,8 +222,9 @@ class DPGGUI(AbstractView):
         :param mode: file mode.
         :return: None.
         """
-        if not self.__fd_generated:
-            self.__fd_generated = True
+
+        if not self.__has_filedialog:
+            self.__has_filedialog = True
             # ========================================= FILE DIALOG =========================================
             with dpg.file_dialog(label="File Dialog",
                                  width=dpg.get_viewport_width() // 1.2,  # type: ignore
@@ -249,7 +259,7 @@ class DPGGUI(AbstractView):
         :param controller: controller that handles the data user interactions.
         :return: None.
         """
-        self.__stop_loading()
+        self.__status = ViewStatus.RUNNING
 
         # ========================================= PRYMARY WINDOW =========================================
         with dpg.window(tag="primary_window"):
@@ -259,14 +269,20 @@ class DPGGUI(AbstractView):
             # ========================================== Menu ==========================================
             with dpg.menu_bar():
                 with dpg.menu(label="File"):
-                    dpg.add_menu_item(label="Open file", callback=lambda: print("[WIP] text from file"))
+                    dpg.add_menu_item(label="Open file [NOT WORKING]", callback=lambda: print("[WIP] text from file"))
 
                     # save button
-                    dpg.add_menu_item(label="Save", callback=lambda: self.__open_file_dialog(controller, 'suca'))
+                    dpg.add_menu_item(label="Save all results",
+                                      callback=lambda: self.__open_file_dialog(
+                                          controller,
+                                          [_prepare_message(dpg.get_value(f'result_text0_data{index}'),
+                                                            dpg.get_value(f'result_text1_data{index}')
+                                                            ) for index in range(self.__results_counter)]))
 
                 with dpg.menu(label="Settings"):
-                    dpg.add_menu_item(label="Full screen", check=True,
-                                      callback=lambda: dpg.toggle_viewport_fullscreen())
+                    dpg.add_text('more options soon!', color=Colors.GOLD.rgb)
+                    # dpg.add_menu_item(label="Full screen", check=True,
+                    #                   callback=lambda: dpg.toggle_viewport_fullscreen())
 
                 with dpg.menu(label="Help"):
                     dpg.add_menu_item(

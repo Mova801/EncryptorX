@@ -1,1 +1,1 @@
-from src.view.elements import result_element, init_loading_window
+from view.elements import result_element, init_loading_window

@@ -4,7 +4,7 @@ Module containing application layout constants.
 from dataclasses import dataclass
 from pathlib import Path
 
-from src.util import color
+from util import color
 
 
 @dataclass

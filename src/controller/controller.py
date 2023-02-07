@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from time import sleep
+from typing import Callable, Any
 
-from src.controller import controller_constants
-from src.logger.logger import basic_log, basic_init_log
-from src.model.model import Model
-from src.util.multi_threading import as_thread
-from src.view.abc_view import AbstractView
+from controller import controller_constants
+from logger.logger import basic_log, basic_init_log
+from model.model import Model
+from util.multithreading import as_thread
+from view.abc_view import AbstractView
 
 
 @basic_init_log
@@ -37,7 +38,8 @@ class Controller:
                 self.model.hyperlink(controller_constants.Link.github_app_issues)
 
     @basic_log
-    def handle_store_data_request(self, file_name: str, current_path: str, data: str, mode: str | None = 'w') -> None:
+    def handle_store_data_request(self, file_name: str, current_path: str, data: list[str],
+                                  mode: str | None = 'w') -> None:
         """
         Handle a request to save data into a file.
         :param file_name: file name.
@@ -66,6 +68,15 @@ class Controller:
         :param key: key used to encrypt data.
         :return: encrypted data and key.
         """
-        time: float = len(data + key) / 10
-        sleep(time)
-        return str(time), str(time + 1)
+        res: str = ""
+        used_func: Callable[..., Any] = None
+        match key:
+            case 'bin':
+                used_func = bin
+            case 'hex':
+                used_func = hex
+            case _:
+                return None, None
+        for char in data:
+            res += used_func(ord(char))[2:] + ' '
+        return res, key

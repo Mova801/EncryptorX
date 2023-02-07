@@ -3,7 +3,7 @@ import dearpygui.dearpygui as dpg
 from pathlib import Path
 import pyautogui
 
-from src.view.view_constants import Colors
+from view.view_constants import Colors
 
 
 def _get_screen_center() -> tuple[int, int]:

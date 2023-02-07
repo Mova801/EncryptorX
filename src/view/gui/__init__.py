@@ -1,1 +1,1 @@
-from src.view.gui import ct_gui, dpg_gui
+from view.gui import dpg_gui

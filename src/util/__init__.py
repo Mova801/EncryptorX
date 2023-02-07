@@ -1,1 +1,1 @@
-from src.util import color, cypher, multi_threading
+from util import color, cypher, multithreading

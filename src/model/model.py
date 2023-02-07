@@ -6,8 +6,8 @@ from pathlib import Path
 import pyperclip
 import webbrowser
 
-from src.logger.logger import basic_init_log
-from src.view.view_constants import AppConstants
+from logger.logger import basic_init_log
+from view.view_constants import AppConstants
 
 
 @basic_init_log
@@ -25,7 +25,7 @@ class Model:
         """
         webbrowser.open(link)
 
-    def store_data(self, file_name: str, current_path: str, data: str, mode: str | None = 'w'):
+    def store_data(self, file_name: str, current_path: str, data: list[str], mode: str | None = 'w'):
         """
         Store data into a file.
         :param file_name: file name.
@@ -39,7 +39,7 @@ class Model:
         file_path = Path(current_path)
         if file_path.is_dir():
             with open(file_path.joinpath(file_name), mode) as f:
-                f.write(data)
+                f.writelines(data)
 
     def copy2clipboard(self, data: str) -> None:
         """

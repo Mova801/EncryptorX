@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from time import sleep
-from typing import Callable, Any
+from typing import Any
 
 from controller import controller_constants
 from logger.logger import basic_log, basic_init_log
@@ -61,7 +60,7 @@ class Controller:
 
     @basic_log
     # @as_thread
-    def handle_encrypt_request(self, data: str, key: str) -> tuple[str, str]:
+    def handle_encrypt_request(self, data: str, key: str) -> tuple[Any, Any]:
         """
         Handle a request to encrypt data with key.
         :param data: data to encrypt.

@@ -14,7 +14,7 @@ class ResultElement:
         self.__id: int = result_id
         self.__parent: str = parent
         with dpg.child_window(parent=self.__parent, tag=f"result{self.__id}", autosize_x=True,
-                              height=ResultConstants.height):
+                              height=ResultConstants.height, no_scrollbar=True):
             with dpg.group(horizontal=True):
                 # loading indicator
                 indicator_x: int = dpg.get_viewport_width() // 2 - 50

@@ -42,6 +42,8 @@ data: {data1}
 """
 
 
+# TODO: implement configuration loading & loading screen
+
 @basic_init_log
 class DPGGUI(AbstractView):
     """

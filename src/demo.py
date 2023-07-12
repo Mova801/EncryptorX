@@ -15,8 +15,6 @@ import dearpygui.dearpygui as dpg
 # dpg.start_dearpygui()
 # dpg.destroy_context()
 
-import dearpygui.dearpygui as dpg
-
 from view.elements.init_loading_window import InitialLoading
 from view.view_constants import AppConstants
 from view.view_constants import ImageConstants
@@ -40,6 +38,7 @@ dpg.show_viewport()
 while dpg.is_dearpygui_running():
     dpg.render_dearpygui_frame()
     if dpg.is_key_down(dpg.mvKey_A):
-        dpg.delete_item('loading_window')
+        # dpg.delete_item('loading_window')
+        break
 # stop
 dpg.destroy_context()

@@ -12,7 +12,7 @@ from logger.logger import basic_init_log, basic_log
 from util.multithreading import as_thread
 from view.abc_view import AbstractView
 from view.elements.error_popup import InvalidKeyErrorPopup
-# from view.elements.init_loading_window import InitialLoading
+from view.elements.init_loading_window import InitialLoading
 from view.elements.result_element import ResultElement
 from view.view_constants import Colors
 from view.view_constants import FontConstants
@@ -116,10 +116,10 @@ class DPGGUI(AbstractView):
     def __setup_loading(self) -> None:
         """"""
         width = height = 200
-        # self.init_loading = InitialLoading(width, height, AppConstants.image_path.joinpath(ImageConstants.loading))
-        # while self.__status == ViewStatus.INIT:
-        #     print('I\'m a thread')
-        # self.init_loading.delete()
+        self.init_loading = InitialLoading(width, height, AppConstants.image_path.joinpath(ImageConstants.loading))
+        while self.__status == ViewStatus.INIT:
+            print('I\'m a thread')
+        self.init_loading.delete()
 
     def __increment_result_counter(func: Callable[..., Any]) -> Callable[..., Any]:
         """

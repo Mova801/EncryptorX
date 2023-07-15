@@ -338,7 +338,7 @@ class DPGGUI(AbstractView):
                 dpg.bind_item_font(btn_clear_id, self.__fonts['large'])
                 dpg.add_text(
                     'v' + AppConstants.version, color=Colors.GOLD.rgb,
-                    indent=dpg.get_viewport_width() // 1.22)
+                    indent=int(dpg.get_viewport_width() // 1.22))
 
             # set primary window
             dpg.set_primary_window('primary_window', True)
